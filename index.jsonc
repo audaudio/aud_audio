@@ -1,0 +1,28 @@
+// @license
+// Copyright (c) Audanika. All Rights Reserved.
+//
+// Use of this source code is governed by terms that can be
+// found in the LICENSE file in the root of this package.
+
+{
+  "name": "aud_audio",
+  "summary": "The Audanika Audio Engine: a Flutter audio graph defined in Dart and rendered in C++ on iOS, Android, macOS, Windows, Linux and Web.",
+  "domain": [
+    "The Audanika Audio Engine"
+  ],
+  "interfaces": {
+    "uses": {
+      "aud_audio_core": "package dependency",
+      "aud_audio_graph": "package dependency",
+      "aud_audio_io": "package dependency",
+      "aud_audio_web": "package dependency"
+    },
+    "usedBy": {
+      "aud_audio_ui_graph_edit": "consumes this package",
+      "aud_audio_ui_controls": "consumes this package",
+      "aud_audio_ui_keyboard": "consumes this package",
+      "aud_audio_ui_waveform": "consumes this package",
+      "aud_audio_bench": "consumes this package"
+    }
+  }
+}
