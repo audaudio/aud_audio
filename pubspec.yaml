@@ -1,6 +1,6 @@
 name: aud_audio
 description: "The Audanika Audio Engine: a Flutter audio graph defined in Dart and rendered in C++ on iOS, Android, macOS, Windows, Linux and Web"
-version: 0.0.2
+version: 0.1.0
 publish_to: none
 homepage: https://github.com/audaudio/aud_audio
 repository: https://github.com/audaudio/aud_audio
