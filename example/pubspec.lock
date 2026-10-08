@@ -30,28 +30,28 @@ packages:
       path: "../../aud_audio_core"
       relative: true
     source: path
-    version: "0.0.2"
+    version: "0.1.0"
   aud_audio_graph:
     dependency: "direct main"
     description:
       path: "../../aud_audio_graph"
       relative: true
     source: path
-    version: "0.0.2"
+    version: "0.1.0"
   aud_audio_io:
     dependency: "direct main"
     description:
       path: "../../aud_audio_io"
       relative: true
     source: path
-    version: "0.0.2"
+    version: "0.1.0"
   aud_audio_web:
     dependency: "direct overridden"
     description:
       path: "../../aud_audio_web"
       relative: true
     source: path
-    version: "0.0.2"
+    version: "0.0.3"
   aud_dsp_effects:
     dependency: "direct main"
     description:
