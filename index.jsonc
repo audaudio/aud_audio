@@ -12,6 +12,8 @@
   ],
   "interfaces": {
     "uses": {
+      "aud_dsp_sampler": "example app plays the sfizz sampler",
+      "aud_dsp_effects": "example app plays the tremolo",
       "aud_audio_core": "package dependency",
       "aud_audio_graph": "package dependency",
       "aud_audio_io": "package dependency",

@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<Audanika>
+  <Audio>
+    <Sampler>
+      <Sounds>
+        <Items>
+          <Sound attack="30" label="DefaultSound3" linearGain="1.9" release="100" sampleSetId="AUD007869_sineWave.sampleset">
+          </Sound>
+        </Items>
+      </Sounds>
+    </Sampler>
+  </Audio>
+</Audanika>
