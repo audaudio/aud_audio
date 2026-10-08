@@ -1,0 +1,46 @@
+name: aud_audio_example
+description: "Example app of the Audanika Audio Engine: plays the spike graph of ticket 5 on iOS, Android and macOS and shows the callback and command latency measurements."
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  aud_audio:
+    path: ../
+  aud_audio_core:
+    path: ../../aud_audio_core
+  aud_audio_graph:
+    path: ../../aud_audio_graph
+  aud_audio_io:
+    path: ../../aud_audio_io
+  aud_dsp_effects:
+    path: ../../aud_dsp_effects
+  aud_dsp_sampler:
+    path: ../../aud_dsp_sampler
+  path_provider: ^2.1.5
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+# The family packages reference each other by git tags; inside the ticket
+# and the ocean the sibling checkouts are the source of truth.
+dependency_overrides:
+  aud_audio_core:
+    path: ../../aud_audio_core
+  aud_audio_graph:
+    path: ../../aud_audio_graph
+  aud_audio_io:
+    path: ../../aud_audio_io
+  aud_audio_web:
+    path: ../../aud_audio_web
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/legacy/AUD007869_sineWave.sampleset/
+    - assets/legacy/AUD007869_sineWave.sampleset/44kHz/
+    - assets/legacy/presets/
