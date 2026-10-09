@@ -123,7 +123,8 @@ flutter test integration_test/engine_test.dart -d <device> \
   `aud_audio_ffi.dart` adds `AudEngineFfi`, `AudNativeNodePackage` and the
   native parts of core, graph and io.
 - `test_packages/aud_test_nodes` is a DSP package built apart from the
-  engine; it proves the registry. `node scripts/test-native.js` runs its
+  engine: `node scripts/test-native.js --library` builds it as a library
+  of its own, which the tests load to prove the registry. `node scripts/test-native.js` runs its
   native test under ASan/UBSan and the RealtimeSanitizer.
 
 ## Contributing

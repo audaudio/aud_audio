@@ -5,13 +5,17 @@
 // found in the LICENSE file in the root of this package.
 
 // Builds and runs the native test of the test package aud_test_nodes - the
-// only native code of the umbrella (ticket 22) - with the address and the
+// only native code of the umbrella (ticket 22), a DSP package the Dart tests
+// load as a library of its own - with the address and the
 // undefined behaviour sanitizer, and with Clang's RealtimeSanitizer when a
 // compiler on this machine has it, with a probe that proves the run
 // catches an allocation on the audio thread.
 //
 //   node scripts/test-native.js               every build this machine has
 //   node scripts/test-native.js --no-sanitize  one build, no sanitizer
+//   node scripts/test-native.js --library      builds the package as a
+//                                              shared library for the Dart
+//                                              tests and prints its path
 
 'use strict';
 
@@ -110,7 +114,50 @@ function run(name, compiler, flags) {
   }
 }
 
+// Builds the test package as a shared library under .dart_tool, as a
+// package built apart from the engine; returns its path.
+function library() {
+  const outDir = path.join(root, '.dart_tool', 'aud_test_nodes');
+  fs.mkdirSync(outDir, { recursive: true });
+  const ext = process.platform === 'darwin' ? 'dylib' : 'so';
+  const out = path.join(outDir, `libaud_test_nodes.${ext}`);
+  const source = path.join(
+    root,
+    'test_packages/aud_test_nodes/src/aud_test_nodes.cpp',
+  );
+  if (
+    fs.existsSync(out) &&
+    fs.statSync(out).mtimeMs > fs.statSync(source).mtimeMs
+  ) {
+    return out;
+  }
+  const build = spawnSync(
+    'clang++',
+    [
+      '-std=c++17',
+      '-O2',
+      '-shared',
+      '-fPIC',
+      '-fvisibility=hidden',
+      '-I',
+      packageSrc('aud_audio_core'),
+      source,
+      '-o',
+      out,
+    ],
+    { encoding: 'utf8' },
+  );
+  if (build.status !== 0) {
+    throw new Error(`library: build failed\n${build.stdout}${build.stderr}`);
+  }
+  return out;
+}
+
 function main() {
+  if (process.argv.includes('--library')) {
+    process.stdout.write(`${library()}\n`);
+    return;
+  }
   const builds = [];
   if (!sanitize) {
     builds.push(['plain', 'clang++', []]);

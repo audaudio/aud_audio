@@ -127,8 +127,9 @@ flutter test integration_test/engine_test.dart -d <device> \
 - `aud_audio.dart` exportiert die plattformneutralen APIs der Familie;
   `aud_audio_ffi.dart` ergänzt `AudEngineFfi`, `AudNativeNodePackage` und
   die nativen Teile von Core, Graph und IO.
-- `test_packages/aud_test_nodes` ist ein getrennt gebautes DSP-Paket; es
-  beweist die Registry. `node scripts/test-native.js` führt seinen
+- `test_packages/aud_test_nodes` ist ein getrennt gebautes DSP-Paket:
+  `node scripts/test-native.js --library` baut es als eigene Bibliothek,
+  die die Tests laden, um die Registry zu beweisen. `node scripts/test-native.js` führt seinen
   nativen Test unter ASan/UBSan und dem RealtimeSanitizer aus.
 
 ## Mitwirken

@@ -5,6 +5,7 @@
 ### Changed
 
 - Build the engine for iOS and Android
+- Load the test package as a library of its own
 
 ### Fixed
 

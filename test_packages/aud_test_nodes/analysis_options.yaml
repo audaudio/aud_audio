@@ -1,3 +1,0 @@
-# The test package takes no lints of its own; the umbrella excludes it.
-analyzer:
-  errors: {}

@@ -70,13 +70,6 @@ packages:
       url: "https://github.com/audmidi/aud_midi_standard.git"
     source: git
     version: "0.1.0"
-  aud_test_nodes:
-    dependency: "direct dev"
-    description:
-      path: "test_packages/aud_test_nodes"
-      relative: true
-    source: path
-    version: "0.0.1"
   boolean_selector:
     dependency: transitive
     description:

@@ -5,13 +5,13 @@
 // found in the LICENSE file in the root of this package.
 
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:aud_audio/aud_audio_ffi.dart';
-import 'package:aud_test_nodes/aud_test_nodes.dart';
 import 'package:test/test.dart';
+
+import 'aud_test_nodes.dart';
 
 void main() {
   const timeout = Duration(seconds: 5);
@@ -372,14 +372,7 @@ void main() {
 
     group('registers node packages (abi-001)', () {
       test('a package of the same ABI registers its node types', () {
-        final engine = open(
-          packages: [
-            AudNativeNodePackage(
-              'aud_test_nodes',
-              Native.addressOf(aud_test_nodes_register),
-            ),
-          ],
-        );
+        final engine = open(packages: [AudTestNodes.current]);
         expect(engine.registrations, isEmpty);
         engine.prepare();
         expect(engine.registrations.single.isRegistered, isTrue);
@@ -404,13 +397,7 @@ void main() {
 
       test('a package of another ABI major is refused', () {
         final engine = open(
-          packages: [
-            AudNativeNodePackage(
-              'aud_test_nodes_future',
-              Native.addressOf(aud_test_nodes_future_register),
-            ),
-            const _WebPackage(),
-          ],
+          packages: [AudTestNodes.future, const _WebPackage()],
         );
         engine.start();
         expect(engine.registrations.first.isRegistered, isFalse);
