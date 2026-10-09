@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 - 2026-10-09
+
+### Changed
+
+- Build the engine for iOS and Android
+- Load the test package as a library of its own
+
+### Fixed
+
+- Fix the findings of the code review of the engine
+
 ## 0.1.0 - 2026-10-08
 
 ### Added

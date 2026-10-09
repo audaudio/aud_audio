@@ -1,6 +1,6 @@
 name: aud_audio
-description: "The Audanika Audio Engine: a Flutter audio graph defined in Dart and rendered in C++ on iOS, Android, macOS, Windows, Linux and Web"
-version: 0.1.0
+description: "The Audanika Audio Engine: a Flutter audio graph defined in Dart and rendered in C++, on iOS and Android first"
+version: 0.2.0
 publish_to: none
 homepage: https://github.com/audaudio/aud_audio
 repository: https://github.com/audaudio/aud_audio
@@ -8,32 +8,39 @@ repository: https://github.com/audaudio/aud_audio
 environment:
   sdk: ^3.12.2
 
-# Add regular dependencies here.
+# The first 0.x releases target iOS and Android (release-001).
+platforms:
+  android:
+  ios:
+
+# The family is pinned to exact versions (family-001).
 dependencies:
   aud_audio_core:
     git:
       url: git@github.com:audaudio/aud_audio_core.git
       tag_pattern: "{{version}}"
-    version: ^0.1.0
+    version: 0.4.0
   aud_audio_graph:
     git:
       url: git@github.com:audaudio/aud_audio_graph.git
       tag_pattern: "{{version}}"
-    version: ^0.1.0
+    version: 0.4.0
   aud_audio_io:
     git:
       url: git@github.com:audaudio/aud_audio_io.git
       tag_pattern: "{{version}}"
-    version: ^0.1.0
+    version: 0.3.0
   aud_audio_web:
     git:
       url: git@github.com:audaudio/aud_audio_web.git
       tag_pattern: "{{version}}"
-    version: ^0.0.3
-  # path: ^1.9.0
+    version: 0.0.4
+  ffi: ^2.2.0
+  flutter:
+    sdk: flutter
 
 dev_dependencies:
   dna_audanika: ^0.0.2
+  flutter_lints: ^6.0.0
   helix: ^1.11.0
-  lints: ^6.1.0
-  test: ^1.32.0
+  test: ^1.33.0

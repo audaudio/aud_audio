@@ -1,17 +1,12 @@
 # aud_audio_example
 
-A new Flutter project.
+Oscillator -> filter -> output on the reference nodes of
+`aud_audio_graph`, played by `AudEngine` on iOS and Android: frequency and
+cutoff, start and stop, the current route, the numbers of the engine and a
+report to copy.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter run -d <device>
+flutter test integration_test/engine_test.dart -d <device> \
+  --dart-define=AUD_MEASURE_SECONDS=600
+```

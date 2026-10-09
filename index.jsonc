@@ -6,18 +6,16 @@
 
 {
   "name": "aud_audio",
-  "summary": "The Audanika Audio Engine: a Flutter audio graph defined in Dart and rendered in C++ on iOS, Android, macOS, Windows, Linux and Web.",
+  "summary": "The Audanika Audio Engine: AudEngine plays a graph of aud_audio_graph through an output stream of aud_audio_io, registers the node types of DSP packages and keeps the lifecycle; one API on native platforms and the web, iOS and Android first.",
   "domain": [
     "The Audanika Audio Engine"
   ],
   "interfaces": {
     "uses": {
-      "aud_dsp_sampler": "example app plays the sfizz sampler",
-      "aud_dsp_effects": "example app plays the tremolo",
-      "aud_audio_core": "package dependency",
-      "aud_audio_graph": "package dependency",
-      "aud_audio_io": "package dependency",
-      "aud_audio_web": "package dependency"
+      "aud_audio_core": "ABI version, results, clock and value types",
+      "aud_audio_graph": "the graph the engine renders, aud_graph_render",
+      "aud_audio_io": "the session and the output stream",
+      "aud_audio_web": "the web build, a stub until S5"
     },
     "usedBy": {
       "aud_audio_ui_graph_edit": "consumes this package",
