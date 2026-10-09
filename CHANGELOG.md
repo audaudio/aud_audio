@@ -6,6 +6,10 @@
 
 - Build the engine for iOS and Android
 
+### Fixed
+
+- Fix the findings of the code review of the engine
+
 ## 0.1.0 - 2026-10-08
 
 ### Added

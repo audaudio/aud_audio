@@ -22,7 +22,7 @@ class AudEngineConfig {
   /// - [manualClock] null device: callbacks run only through
   ///   `AudIoStream.debugProcess`
   /// - [listen] take the notifications when the native side wakes; without
-  ///   it, the client pumps the session and the graph
+  ///   it, the client calls `AudEngine.pump`
   /// - [recoveryTimeout] how long the stream tries to recover a lost device
   /// - [graphOptions] the capacities and policies of the graph
   const AudEngineConfig({

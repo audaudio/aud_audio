@@ -38,17 +38,25 @@ class AudEngineFfi implements AudEngine {
       listen: config.listen,
       platform: platform,
     );
-    graph = AudGraphFfi(
-      maxFrames: config.maxFrames,
-      outputChannels: [config.outputChannels],
-      options: config.graphOptions,
-      listen: config.listen,
-    );
-    stream = session.open(
-      config.streamConfig,
-      render: renderFunction,
-      user: graph.pointer.cast(),
-    );
+    AudGraphFfi? created;
+    try {
+      created = AudGraphFfi(
+        maxFrames: config.maxFrames,
+        outputChannels: [config.outputChannels],
+        options: config.graphOptions,
+        listen: config.listen,
+      );
+      stream = session.open(
+        config.streamConfig,
+        render: renderFunction,
+        user: created.pointer.cast(),
+      );
+    } catch (_) {
+      created?.dispose();
+      session.dispose();
+      rethrow;
+    }
+    graph = created;
     _subscription = stream.notifications.listen(_onNotification);
   }
 
@@ -81,13 +89,7 @@ class AudEngineFfi implements AudEngine {
   AudIoStreamFormat get format => stream.format;
 
   @override
-  AudIoRoute get route {
-    final id = format.outputDeviceId;
-    for (final device in session.devices) {
-      if (device.id == id) return device.route;
-    }
-    return AudIoRoute.unknown;
-  }
+  AudIoRoute get route => _route ??= _readRoute();
 
   @override
   AudIoCounters get counters => stream.counters;
@@ -137,15 +139,20 @@ class AudEngineFfi implements AudEngine {
     if (_registrations.isEmpty) _register();
     final format = stream.format;
     graph.prepare(sampleRate: format.sampleRate, maxFrames: format.maxFrames);
-    stream.acknowledge(format.generation);
+    _acknowledge(format);
     _enter(AudEngineState.prepared);
   }
 
   @override
   void start() {
     _checkNotDisposed();
-    if (_state == AudEngineState.running ||
-        _state == AudEngineState.suspended) {
+    if (_state == AudEngineState.running) return;
+    if (_state == AudEngineState.suspended) {
+      // A recovery that failed for good: the stream tries again.
+      if (stream.state == AudIoState.failed) {
+        stream.start();
+        _reprepare(stream.format.generation);
+      }
       return;
     }
     if (_state != AudEngineState.prepared) prepare();
@@ -178,6 +185,9 @@ class AudEngineFfi implements AudEngine {
     unawaited(_states.close());
   }
 
+  @override
+  int pump() => session.pump() + graph.pump();
+
   // ...........................................................................
   @override
   Future<int> measureCommandToSound({
@@ -206,6 +216,7 @@ class AudEngineFfi implements AudEngine {
   /// output, extrapolated from the time of the last callback in [counters].
   static int presentationTimeNs(int samplePosition, AudIoCounters counters) {
     final time = counters.lastTime;
+    if (time.sampleRate <= 0) return time.hostTimeNs;
     final frames = samplePosition - time.samplePosition;
     return time.hostTimeNs + (frames * 1e9 / time.sampleRate).round();
   }
@@ -245,6 +256,8 @@ class AudEngineFfi implements AudEngine {
       StreamController<AudEngineState>.broadcast();
   late final StreamSubscription<AudIoNotification> _subscription;
   AudEngineState _state = AudEngineState.created;
+  AudIoRoute? _route;
+  int _acknowledged = 1;
 
   void _enter(AudEngineState state) {
     _state = state;
@@ -269,6 +282,11 @@ class AudEngineFfi implements AudEngine {
 
   // ...........................................................................
   void _onNotification(AudIoNotification notification) {
+    if (notification.type == AudIoNotificationType.routeChanged ||
+        notification.type == AudIoNotificationType.devicesChanged ||
+        notification.type == AudIoNotificationType.formatChanged) {
+      _route = null;
+    }
     switch (notification.type) {
       case AudIoNotificationType.interrupted:
       case AudIoNotificationType.disconnected:
@@ -289,21 +307,44 @@ class AudEngineFfi implements AudEngine {
     _enter(AudEngineState.suspended);
   }
 
-  /// The one sequence of lifecycle-001: suspend, prepare for the format of
-  /// [generation], resume, acknowledge.
+  /// The one sequence of lifecycle-001: suspend, prepare for the new
+  /// format, resume, acknowledge. The graph is prepared only while the
+  /// stream holds it - after a new generation of the format, until it is
+  /// acknowledged - so the audio thread never renders a graph that is being
+  /// prepared; without a new format the graph just resumes.
   void _reprepare(int generation) {
     final format = stream.format;
+    final held = format.generation != _acknowledged;
     if (_state == AudEngineState.running ||
         _state == AudEngineState.suspended) {
       _suspend();
-      graph.prepare(sampleRate: format.sampleRate, maxFrames: format.maxFrames);
+      if (held) {
+        graph.prepare(
+          sampleRate: format.sampleRate,
+          maxFrames: format.maxFrames,
+        );
+      }
       graph.resume();
       _enter(AudEngineState.running);
-    } else if (_state == AudEngineState.prepared) {
+    } else if (_state == AudEngineState.prepared && held) {
       graph.prepare(sampleRate: format.sampleRate, maxFrames: format.maxFrames);
+    } else if (held) {
+      // Stopped or created: the next prepare acknowledges the format.
+      return;
     }
-    stream.acknowledge(
-      generation > format.generation ? generation : format.generation,
-    );
+    if (held) _acknowledge(format);
+  }
+
+  void _acknowledge(AudIoStreamFormat format) {
+    stream.acknowledge(format.generation);
+    _acknowledged = format.generation;
+  }
+
+  AudIoRoute _readRoute() {
+    final id = stream.format.outputDeviceId;
+    for (final device in session.devices) {
+      if (device.id == id) return device.route;
+    }
+    return AudIoRoute.unknown;
   }
 }

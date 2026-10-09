@@ -231,6 +231,85 @@ void main() {
       });
     });
 
+    group('after the code review', () {
+      test('start() restarts a stream whose recovery failed', () async {
+        final engine = AudEngineFfi(
+          config: const AudEngineConfig(
+            backend: AudIoBackend.nullDevice,
+            outputChannels: 1,
+            maxFrames: 256,
+            manualClock: true,
+            recoveryTimeout: Duration(milliseconds: 30),
+          ),
+        );
+        addTearDown(engine.dispose);
+        build(engine.graph);
+        engine.start();
+        engine.session.inject(AudIoFault.failOpen, 1000);
+        engine.session.inject(AudIoFault.disconnect);
+        await _waitFor(() => engine.stream.state == AudIoState.failed);
+        expect(engine.state, AudEngineState.suspended);
+        engine.session.inject(AudIoFault.failOpen, 0);
+        engine.start();
+        await _waitFor(() => engine.stream.state == AudIoState.running);
+        expect(engine.state, AudEngineState.running);
+        expect(peak(play(engine, 4800)), greaterThan(0.1));
+      });
+
+      test('a failing open releases the session and the graph', () {
+        // The graph refuses 1000 channels; the stream refuses 64.
+        for (final (channels, error) in [
+          (1000, isA<AudGraphException>()),
+          (64, isA<AudIoException>()),
+        ]) {
+          expect(
+            () => AudEngineFfi(
+              config: AudEngineConfig(
+                backend: AudIoBackend.nullDevice,
+                outputChannels: channels,
+                manualClock: true,
+              ),
+            ),
+            throwsA(error),
+          );
+        }
+      });
+
+      test('pump() takes the notifications without listening', () async {
+        final engine = AudEngineFfi(
+          config: const AudEngineConfig(
+            backend: AudIoBackend.nullDevice,
+            outputChannels: 1,
+            manualClock: true,
+            listen: false,
+          ),
+        );
+        addTearDown(engine.dispose);
+        engine.start();
+        engine.session.inject(AudIoFault.sampleRate, 44100);
+        await _waitFor(() {
+          engine.pump();
+          return engine.graph.sampleRate == 44100;
+        });
+        expect(engine.state, AudEngineState.running);
+      });
+
+      test('the route is read once and again after a change', () async {
+        final engine = open();
+        expect(engine.route, AudIoRoute.virtual);
+        expect(engine.route, AudIoRoute.virtual);
+        engine.start();
+        engine.session.inject(AudIoFault.route);
+        await _waitFor(() => engine.stream.state == AudIoState.running);
+        expect(engine.route, AudIoRoute.virtual);
+      });
+
+      test('presentationTimeNs() without a callback is its host time', () {
+        final engine = open();
+        expect(AudEngineFfi.presentationTimeNs(480, engine.counters), 0);
+      });
+    });
+
     group('shuts down in reverse', () {
       for (final from in [
         AudEngineState.created,

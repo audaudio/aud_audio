@@ -101,6 +101,11 @@ abstract interface class AudEngine {
   /// Stops and releases the stream, the graph and the session.
   void dispose();
 
+  /// Takes the notifications of the session and the graph when the
+  /// configuration does not listen; returns how many were taken. With
+  /// `AudEngineConfig.listen` the native threads wake the engine instead.
+  int pump();
+
   // ...........................................................................
   /// Measures the command-to-sound latency once: from the host time of an
   /// empty transaction to the presentation time of the first block that
