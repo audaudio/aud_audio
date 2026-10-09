@@ -19,22 +19,22 @@ dependencies:
     git:
       url: git@github.com:audaudio/aud_audio_core.git
       tag_pattern: "{{version}}"
-    version: 0.3.0
+    version: 0.4.0
   aud_audio_graph:
     git:
       url: git@github.com:audaudio/aud_audio_graph.git
       tag_pattern: "{{version}}"
-    version: 0.3.0
+    version: 0.4.0
   aud_audio_io:
     git:
       url: git@github.com:audaudio/aud_audio_io.git
       tag_pattern: "{{version}}"
-    version: 0.2.0
+    version: 0.3.0
   aud_audio_web:
     git:
       url: git@github.com:audaudio/aud_audio_web.git
       tag_pattern: "{{version}}"
-    version: 0.0.3
+    version: 0.0.4
   ffi: ^2.2.0
   flutter:
     sdk: flutter
