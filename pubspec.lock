@@ -36,38 +36,30 @@ packages:
   aud_audio_core:
     dependency: "direct main"
     description:
-      path: "."
-      resolved-ref: "47e125c46f7c786a55bf00ddfd75c073ee56c70a"
-      tag-pattern: "{{version}}"
-      url: "git@github.com:audaudio/aud_audio_core.git"
-    source: git
-    version: "0.1.0"
+      path: "../aud_audio_core"
+      relative: true
+    source: path
+    version: "0.3.0"
   aud_audio_graph:
     dependency: "direct main"
     description:
-      path: "."
-      resolved-ref: "652615b16422b40570d32334852b209aa0add055"
-      tag-pattern: "{{version}}"
-      url: "git@github.com:audaudio/aud_audio_graph.git"
-    source: git
-    version: "0.1.0"
+      path: "../aud_audio_graph"
+      relative: true
+    source: path
+    version: "0.3.0"
   aud_audio_io:
     dependency: "direct main"
     description:
-      path: "."
-      resolved-ref: b920068b3d289757f896a784ce7786f025dec129
-      tag-pattern: "{{version}}"
-      url: "git@github.com:audaudio/aud_audio_io.git"
-    source: git
-    version: "0.1.0"
+      path: "../aud_audio_io"
+      relative: true
+    source: path
+    version: "0.2.0"
   aud_audio_web:
     dependency: "direct main"
     description:
-      path: "."
-      resolved-ref: caa28b8d731d01b92e2f624c9f52f2a8a7531420
-      tag-pattern: "{{version}}"
-      url: "git@github.com:audaudio/aud_audio_web.git"
-    source: git
+      path: "../aud_audio_web"
+      relative: true
+    source: path
     version: "0.0.3"
   aud_midi_standard:
     dependency: transitive
@@ -86,6 +78,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  characters:
+    dependency: transitive
+    description:
+      name: characters
+      sha256: faf38497bda5ead2a8c7615f4f7939df04333478bf32e4173fcb06d428b5716b
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.1"
   cli_config:
     dependency: transitive
     description:
@@ -230,6 +230,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
+  flutter:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -342,6 +347,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  jni:
+    dependency: transitive
+    description:
+      name: jni
+      sha256: "6b9ca0602fef0230e83149afbe3f9f8227e94f2bbe84a1da4f14d699742f402d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  jni_flutter:
+    dependency: transitive
+    description:
+      name: jni_flutter
+      sha256: "0dd33d67797560f66e961a6053882d4df54bd345bf063b8fe7ea133f7ad8b191"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4+1"
+  jni_util:
+    dependency: transitive
+    description:
+      name: jni_util
+      sha256: "1ba86da04a5f2bf18fde2edb235587e70c5b0fc5bd4ba955f46b00942c3fc35f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   lints:
     dependency: "direct dev"
     description:
@@ -366,6 +395,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.12.20"
+  material_color_utilities:
+    dependency: transitive
+    description:
+      name: material_color_utilities
+      sha256: "9c337007e82b1889149c82ed242ed1cb24a66044e30979c44912381e9be4c48b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.0"
   meta:
     dependency: transitive
     description:
@@ -430,6 +467,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
+  plugin_platform_interface:
+    dependency: transitive
+    description:
+      name: plugin_platform_interface
+      sha256: "4820fbfdb9478b1ebae27888254d445073732dae3d6ea81f0b7e06d5dedc3f02"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.8"
   pool:
     dependency: transitive
     description:
@@ -502,6 +547,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  sky_engine:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   source_map_stack_trace:
     dependency: transitive
     description:
@@ -590,6 +640,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  vector_math:
+    dependency: transitive
+    description:
+      name: vector_math
+      sha256: "92b9910f66ed1057fd4da7b040ae7c74cafacf885bdc81be496928d5049b032d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.3"
   vm_service:
     dependency: transitive
     description:
@@ -648,3 +706,4 @@ packages:
     version: "3.1.4"
 sdks:
   dart: ">=3.13.0 <4.0.0"
+  flutter: ">=3.35.6"
