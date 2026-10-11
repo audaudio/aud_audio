@@ -22,6 +22,12 @@ void main() {
     recoveryTimeMaxNs: 0,
     outputLatencyFrames: 384,
     commandToSoundNs: commandToSound,
+    cacheBytes: 1000,
+    cacheBudget: 4000,
+    cacheTrimmed: 500,
+    loadsRunning: 1,
+    loadsFailed: 2,
+    loadTimeMaxNs: 3000000,
   );
 
   group('AudEngineNumbers', () {
@@ -35,6 +41,12 @@ void main() {
       expect(json['callbackTimeMeanNs'], 20001);
       expect(json['commandToSoundMeanNs'], 7000000);
       expect(json['xruns'], 1);
+      expect(json['cacheBytes'], 1000);
+      expect(json['cacheBudget'], 4000);
+      expect(json['cacheTrimmed'], 500);
+      expect(json['loadsRunning'], 1);
+      expect(json['loadsFailed'], 2);
+      expect(json['loadTimeMaxNs'], 3000000);
       expect(measured.toString(), contains('lateCallbacks: 2'));
     });
 

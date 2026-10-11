@@ -33,6 +33,7 @@ void main() {
       expect(config.sampleRate, 0);
       expect(config.listen, isTrue);
       expect(config.recoveryTimeout, Duration.zero);
+      expect(config.cacheBudget, isNull);
     });
   });
 }

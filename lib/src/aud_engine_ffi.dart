@@ -57,6 +57,7 @@ class AudEngineFfi implements AudEngine {
       rethrow;
     }
     graph = created;
+    if (config.cacheBudget != null) graph.cacheBudget = config.cacheBudget!;
     _subscription = stream.notifications.listen(_onNotification);
   }
 
@@ -109,6 +110,8 @@ class AudEngineFfi implements AudEngine {
     final stats = graph.stats;
     final counters = stream.counters;
     final format = stream.format;
+    final cache = graph.cacheUsage;
+    final loads = loadNumbers(graph.loads);
     return AudEngineNumbers(
       sampleRate: format.sampleRate,
       bufferFrames: format.bufferFrames,
@@ -126,7 +129,33 @@ class AudEngineFfi implements AudEngine {
       recoveryTimeMaxNs: counters.recoveryTimeMaxNs,
       outputLatencyFrames: counters.lastTime.outputLatencyFrames,
       commandToSoundNs: List.unmodifiable(_commandToSound),
+      cacheBytes: cache.bytes,
+      cacheBudget: cache.budget,
+      cacheTrimmed: cache.trimmed,
+      loadsRunning: loads.running,
+      loadsFailed: loads.failed,
+      loadTimeMaxNs: loads.timeMaxNs,
     );
+  }
+
+  /// The loads of [loads] that run, those that failed - cancelled ones do
+  /// not count - and the longest that ended, in nanoseconds.
+  static ({int running, int failed, int timeMaxNs}) loadNumbers(
+    Iterable<AudLoad> loads,
+  ) {
+    var running = 0;
+    var failed = 0;
+    var timeMaxNs = 0;
+    for (final load in loads) {
+      if (load.isRunning) {
+        running += 1;
+        continue;
+      }
+      if (!load.succeeded && !load.cancelled) failed += 1;
+      final time = load.endNs - load.startNs;
+      if (time > timeMaxNs) timeMaxNs = time;
+    }
+    return (running: running, failed: failed, timeMaxNs: timeMaxNs);
   }
 
   // ...........................................................................

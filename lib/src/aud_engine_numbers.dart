@@ -7,7 +7,8 @@
 // #############################################################################
 /// The numbers S24 starts with (ticket 22): render time, xruns and
 /// command-to-sound latency, read from the graph statistics, the stream
-/// counters and the measurements of `AudEngine.measureCommandToSound`.
+/// counters and the measurements of `AudEngine.measureCommandToSound`;
+/// and since ticket 25 the sample cache and the loads of the nodes.
 class AudEngineNumbers {
   /// Creates the numbers.
   const AudEngineNumbers({
@@ -25,6 +26,12 @@ class AudEngineNumbers {
     required this.recoveryTimeMaxNs,
     required this.outputLatencyFrames,
     this.commandToSoundNs = const [],
+    this.cacheBytes = 0,
+    this.cacheBudget = 0,
+    this.cacheTrimmed = 0,
+    this.loadsRunning = 0,
+    this.loadsFailed = 0,
+    this.loadTimeMaxNs = 0,
   });
 
   // ...........................................................................
@@ -72,6 +79,24 @@ class AudEngineNumbers {
   /// carries it.
   final List<int> commandToSoundNs;
 
+  /// The bytes the sample caches of the process hold.
+  final int cacheBytes;
+
+  /// The sample cache budget of the process in bytes.
+  final int cacheBudget;
+
+  /// The bytes the trims of the budget freed so far.
+  final int cacheTrimmed;
+
+  /// The loads of nodes that run, e.g. instruments of a sampler.
+  final int loadsRunning;
+
+  /// The loads the graph keeps that failed; cancelled ones do not count.
+  final int loadsFailed;
+
+  /// The longest load the graph keeps, in nanoseconds; 0 without one.
+  final int loadTimeMaxNs;
+
   // ...........................................................................
   /// The shortest command-to-sound latency, or null without a measurement.
   int? get commandToSoundMinNs => commandToSoundNs.isEmpty
@@ -107,6 +132,12 @@ class AudEngineNumbers {
     'commandToSoundMinNs': commandToSoundMinNs,
     'commandToSoundMeanNs': commandToSoundMeanNs?.round(),
     'commandToSoundMaxNs': commandToSoundMaxNs,
+    'cacheBytes': cacheBytes,
+    'cacheBudget': cacheBudget,
+    'cacheTrimmed': cacheTrimmed,
+    'loadsRunning': loadsRunning,
+    'loadsFailed': loadsFailed,
+    'loadTimeMaxNs': loadTimeMaxNs,
   };
 
   @override

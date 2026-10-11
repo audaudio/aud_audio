@@ -464,7 +464,63 @@ void main() {
       test('numbers before any block', () {
         final engine = open();
         expect(engine.numbers.renderTimeMeanNs, 0);
+        expect(engine.numbers.loadsRunning, 0);
+        expect(engine.numbers.loadTimeMaxNs, 0);
         expect(engine.route, AudIoRoute.virtual);
+      });
+
+      test('sets the cache budget of the process and reports the cache', () {
+        final before = AudGraphFfi(listen: false, maxFrames: 256);
+        final budget = before.cacheBudget;
+        before.dispose();
+        final engine = AudEngineFfi(
+          config: const AudEngineConfig(
+            backend: AudIoBackend.nullDevice,
+            outputChannels: 1,
+            maxFrames: 256,
+            manualClock: true,
+            cacheBudget: 64 << 20,
+          ),
+        );
+        addTearDown(() {
+          engine.graph.cacheBudget = budget;
+          engine.dispose();
+        });
+        expect(engine.graph.cacheBudget, 64 << 20);
+        final numbers = engine.numbers;
+        expect(numbers.cacheBudget, 64 << 20);
+        expect(numbers.cacheBytes, greaterThanOrEqualTo(0));
+        expect(numbers.cacheTrimmed, greaterThanOrEqualTo(0));
+        expect(engine.report(), contains('cacheBudget: ${64 << 20}'));
+      });
+
+      test('loadNumbers() counts the loads that run, failed and took long', () {
+        AudLoad load(int result, {bool cancelled = false, int endNs = 0}) =>
+            AudLoad(
+              id: 1,
+              node: 1,
+              name: 'a.sfz',
+              result: result,
+              progress: 1,
+              message: '',
+              cancelled: cancelled,
+              startNs: 1000,
+              endNs: endNs,
+            );
+        expect(AudEngineFfi.loadNumbers(const []), (
+          running: 0,
+          failed: 0,
+          timeMaxNs: 0,
+        ));
+        expect(
+          AudEngineFfi.loadNumbers([
+            load(AUD_PENDING),
+            load(AUD_OK, endNs: 5000),
+            load(AUD_ERROR_FAILED, endNs: 3000),
+            load(AUD_ERROR_CANCELLED, cancelled: true, endNs: 9000),
+          ]),
+          (running: 1, failed: 1, timeMaxNs: 8000),
+        );
       });
     });
   });

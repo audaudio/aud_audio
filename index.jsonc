@@ -8,14 +8,17 @@
   "name": "aud_audio",
   "summary": "The Audanika Audio Engine: AudEngine plays a graph of aud_audio_graph through an output stream of aud_audio_io, registers the node types of DSP packages and keeps the lifecycle; one API on native platforms and the web, iOS and Android first.",
   "domain": [
-    "The Audanika Audio Engine"
+    "The Audanika Audio Engine",
+    "The sample cache budget of the process and the numbers of the engine: render time, xruns, command to sound, cache and loads",
+    "The example app: oscillator page and SFZ sampler page with a keyboard, integration tests that measure the M1 budgets"
   ],
   "interfaces": {
     "uses": {
       "aud_audio_core": "ABI version, results, clock and value types",
       "aud_audio_graph": "the graph the engine renders, aud_graph_render",
       "aud_audio_io": "the session and the output stream",
-      "aud_audio_web": "the web build, a stub until S5"
+      "aud_audio_web": "the web build, a stub until S5",
+      "aud_dsp_sampler": "the example app plays the sampler"
     },
     "usedBy": {
       "aud_audio_ui_graph_edit": "consumes this package",
