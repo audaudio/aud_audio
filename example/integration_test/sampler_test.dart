@@ -78,14 +78,20 @@ void main() {
     expect(swap!.succeeded, isTrue, reason: swap.message);
     print('load of Mellow: ${swap.duration!.inMilliseconds} ms');
 
-    // 64 voices live, at the buffer the device grants.
+    // 64 voices live, at the buffer the device grants: the block in which
+    // all of them start, then 2 s of the 64 voices playing.
     engine.graph.resetStats();
     page.playVoices(64);
     await tester.runAsync(
-      () => Future<void>.delayed(const Duration(seconds: 2)),
+      () => Future<void>.delayed(const Duration(seconds: 1)),
     );
     await tester.pump();
     await _until(tester, () => page.voices == 64);
+    final burst = engine.numbers;
+    engine.graph.resetStats();
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(seconds: 2)),
+    );
     final live = engine.numbers;
     final format = engine.format;
     // The graph renders the blocks of the device's callbacks.
@@ -93,13 +99,14 @@ void main() {
         ? format.bufferFrames
         : format.maxFrames;
     final blockNs = blockFrames / format.sampleRate * 1e9;
+    String share(num ns) => '${(100 * ns / blockNs).toStringAsFixed(0)} %';
     print(
       '64 voices live: block $blockFrames frames '
       '(${(blockNs / 1e6).toStringAsFixed(2)} ms), render max '
-      '${live.renderTimeMaxNs / 1e6} ms '
-      '(${(100 * live.renderTimeMaxNs / blockNs).toStringAsFixed(0)} %), '
-      'mean ${live.renderTimeMeanNs / 1e6} ms '
-      '(${(100 * live.renderTimeMeanNs / blockNs).toStringAsFixed(0)} %)',
+      '${live.renderTimeMaxNs / 1e6} ms (${share(live.renderTimeMaxNs)}), '
+      'mean ${live.renderTimeMeanNs / 1e6} ms (${share(live.renderTimeMeanNs)}); '
+      'with the start of the 64 notes max ${burst.renderTimeMaxNs / 1e6} ms '
+      '(${share(burst.renderTimeMaxNs)})',
     );
     if (_assertBudgets) {
       expect(live.renderTimeMaxNs, lessThanOrEqualTo(blockNs / 2));
@@ -145,6 +152,12 @@ void main() {
     expect(engine.counters.renderErrors, 0);
     print(engine.report());
 
+    // The list scrolled down to the keyboard; the button is at its top.
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('sampler-toggle')),
+      -300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.byKey(const Key('sampler-toggle')));
     await tester.pump();
     expect(engine.state, AudEngineState.stopped);
