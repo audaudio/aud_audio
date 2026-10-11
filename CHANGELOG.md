@@ -19,7 +19,15 @@
 - Add the steady state of 64 voices to the sampler test
 
 - The live measurement of 64 voices splits the block in which the notes start from the 2 s after it
+
 - The test scrolls back to the start button before it stops the engine, as on a tablet
+
+- Add the review fixes of the load numbers and the budget
+
+- loadNumbers counts no load that ended with AUD_ERROR_CANCELLED as failed, also not one that a newer load replaced or whose node went
+- AudEngineFfi sets the cache budget inside the open: a budget the graph refuses releases the session, the stream and the graph
+- AudEngineConfig.cacheBudget cites lifecycle-002
+- The tests compare the JSON of AudEngineNumbers as a whole and the cache numbers with the cache usage
 
 ## 0.2.0 - 2026-10-09
 

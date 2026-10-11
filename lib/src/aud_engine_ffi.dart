@@ -51,13 +51,16 @@ class AudEngineFfi implements AudEngine {
         render: renderFunction,
         user: created.pointer.cast(),
       );
+      // Last, so that an engine that fails to open leaves the budget of the
+      // process alone. A budget the graph refuses - release builds drop the
+      // assert of the configuration - releases what is open, too.
+      if (config.cacheBudget case final budget?) created.cacheBudget = budget;
     } catch (_) {
       created?.dispose();
       session.dispose();
       rethrow;
     }
     graph = created;
-    if (config.cacheBudget != null) graph.cacheBudget = config.cacheBudget!;
     _subscription = stream.notifications.listen(_onNotification);
   }
 
@@ -138,8 +141,10 @@ class AudEngineFfi implements AudEngine {
     );
   }
 
-  /// The loads of [loads] that run, those that failed - cancelled ones do
-  /// not count - and the longest that ended, in nanoseconds.
+  /// The loads of [loads] that run, those that failed and the longest that
+  /// ended, in nanoseconds. A load that ended with `AUD_ERROR_CANCELLED`
+  /// did not fail, whether it was asked to stop, a newer load replaced it
+  /// or its node went.
   static ({int running, int failed, int timeMaxNs}) loadNumbers(
     Iterable<AudLoad> loads,
   ) {
@@ -151,7 +156,7 @@ class AudEngineFfi implements AudEngine {
         running += 1;
         continue;
       }
-      if (!load.succeeded && !load.cancelled) failed += 1;
+      if (!load.succeeded && load.result != AUD_ERROR_CANCELLED) failed += 1;
       final time = load.endNs - load.startNs;
       if (time > timeMaxNs) timeMaxNs = time;
     }

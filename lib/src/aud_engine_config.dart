@@ -77,7 +77,7 @@ class AudEngineConfig {
   final AudGraphOptions graphOptions;
 
   /// The sample cache budget of the process in bytes, which every engine
-  /// and graph of the process shares (lifecycle-001, ticket 25): the
+  /// and graph of the process shares (lifecycle-002, ticket 25): the
   /// samplers keep the samples they loaded and streamed within it. Null
   /// keeps the budget the process has; an engine with a budget sets it when
   /// it is created.

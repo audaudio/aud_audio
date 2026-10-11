@@ -91,7 +91,8 @@ class AudEngineNumbers {
   /// The loads of nodes that run, e.g. instruments of a sampler.
   final int loadsRunning;
 
-  /// The loads the graph keeps that failed; cancelled ones do not count.
+  /// The loads the graph keeps that failed; cancelled ones - asked to stop,
+  /// replaced by a newer load or gone with their node - do not count.
   final int loadsFailed;
 
   /// The longest load the graph keeps, in nanoseconds; 0 without one.
