@@ -104,7 +104,10 @@ print(engine.report());
 with frequency and cutoff, and the SFZ sampler of `aud_dsp_sampler` with
 instruments generated on the device, a multi-touch keyboard, sustain,
 modulation, the load, a test of 64 voices and an auto-play with an animated
-UI; both with the numbers and a copyable report:
+UI; both with the numbers and a copyable report. `sampler_test.dart`
+measures the M1 budgets of ticket 17; `AUD_WARMUP_SECONDS` lets the
+auto-play warm the device up first, and only the xruns of the following
+`AUD_MEASURE_SECONDS` count:
 
 ```bash
 cd example
@@ -112,6 +115,7 @@ flutter run -d <ios simulator | android emulator | device>
 flutter test integration_test/engine_test.dart -d <device> \
   --dart-define=AUD_MEASURE_SECONDS=600
 flutter test integration_test/sampler_test.dart -d <device> \
+  --dart-define=AUD_WARMUP_SECONDS=1200 \
   --dart-define=AUD_MEASURE_SECONDS=600 --dart-define=AUD_ASSERT_BUDGETS=true
 ```
 
