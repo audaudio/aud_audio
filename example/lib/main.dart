@@ -9,9 +9,11 @@ import 'dart:math';
 
 import 'package:aud_audio/aud_audio_ffi.dart';
 import 'package:aud_dsp_sampler/aud_dsp_sampler_ffi.dart';
+import 'package:aud_dsp_sampler/testing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import 'engine_panel.dart';
+import 'instruments.dart';
 import 'sampler_page.dart';
 
 void main() => runApp(const EngineApp());
@@ -44,6 +46,10 @@ class EngineAppState extends State<EngineApp> {
     ],
   );
 
+  /// The instrument of the sampler page, written once, when the page opens
+  /// for the first time.
+  late final Future<AudSfzTestInstrument> instrument = Instruments.write();
+
   /// The page on screen: 0 the oscillator, 1 the sampler.
   int page = 0;
 
@@ -68,7 +74,7 @@ class EngineAppState extends State<EngineApp> {
       // them when it goes.
       body: page == 0
           ? EnginePage(engine: engine)
-          : SamplerPage(engine: engine),
+          : SamplerPage(engine: engine, instrument: instrument),
       bottomNavigationBar: NavigationBar(
         selectedIndex: page,
         onDestinationSelected: showPage,
@@ -108,15 +114,6 @@ class EnginePageState extends State<EnginePage> {
   /// The engine.
   AudEngine get engine => widget.engine;
 
-  late final AudNode _osc;
-  late final AudNode _filter;
-  late final StreamSubscription<AudEngineState> _states;
-  Timer? _refresh;
-  double _frequency = 220;
-  double _cutoff = 2000;
-  bool _measuring = false;
-  String? _error;
-
   @override
   void initState() {
     super.initState();
@@ -129,13 +126,10 @@ class EnginePageState extends State<EnginePage> {
         ..connect(_filter, graph.io),
     );
     graph.setParam(_osc, 'frequency', _frequency);
-    graph.setParam(_osc, 'amplitude', 0.3);
+    graph.setParam(_osc, 'amplitude', _amplitude);
     graph.setParam(_filter, 'cutoff', _cutoff);
-    _states = engine.states.listen((_) => setState(() {}));
-    _refresh = Timer.periodic(
-      const Duration(milliseconds: 500),
-      (_) => setState(() {}),
-    );
+    _states = engine.states.listen((_) => _rebuild());
+    _refresh = Timer.periodic(_refreshInterval, (_) => _rebuild());
   }
 
   @override
@@ -153,27 +147,17 @@ class EnginePageState extends State<EnginePage> {
   }
 
   // ...........................................................................
-  /// Starts or stops the engine.
-  void toggle() => setState(() {
-    if (engine.state == AudEngineState.running ||
-        engine.state == AudEngineState.suspended) {
-      engine.stop();
-    } else {
-      engine.start();
-    }
-  });
-
   /// Sets the frequency of the oscillator in Hz.
   void setFrequency(double hz) {
     _frequency = hz;
-    engine.graph.setParam(_osc, 'frequency', hz, rampFrames: 256);
+    engine.graph.setParam(_osc, 'frequency', hz, rampFrames: _rampFrames);
     setState(() {});
   }
 
   /// Sets the cutoff of the filter in Hz.
   void setCutoff(double hz) {
     _cutoff = hz;
-    engine.graph.setParam(_filter, 'cutoff', hz, rampFrames: 256);
+    engine.graph.setParam(_filter, 'cutoff', hz, rampFrames: _rampFrames);
     setState(() {});
   }
 
@@ -183,7 +167,7 @@ class EnginePageState extends State<EnginePage> {
     try {
       for (var i = 0; i < count; i++) {
         await engine.measureCommandToSound();
-        await Future<void>.delayed(const Duration(milliseconds: 20));
+        await Future<void>.delayed(_measurePause);
       }
       _error = null;
     } on Object catch (e) {
@@ -193,44 +177,14 @@ class EnginePageState extends State<EnginePage> {
     }
   }
 
-  /// Copies the report of the engine to the clipboard.
-  Future<void> copyReport() async {
-    await Clipboard.setData(ClipboardData(text: engine.report()));
-    if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Report copied')));
-  }
-
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
-    final state = engine.state;
-    final running =
-        state == AudEngineState.running || state == AudEngineState.suspended;
-    final format = engine.format;
     final numbers = engine.numbers;
-    String ms(num? ns) => ns == null ? '-' : (ns / 1e6).toStringAsFixed(2);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(
-          'State: ${state.name}',
-          key: const Key('state'),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        Text('Route: ${engine.route.name}', key: const Key('route')),
-        Text(
-          'Format: ${format.sampleRate.toStringAsFixed(0)} Hz, '
-          '${format.outputChannels} out, buffer ${format.bufferFrames} '
-          '(${format.backend})',
-        ),
-        const SizedBox(height: 16),
-        FilledButton(
-          key: const Key('toggle'),
-          onPressed: toggle,
-          child: Text(running ? 'Stop' : 'Start'),
-        ),
+        EngineHeader(engine: engine, onToggled: _rebuild),
         const SizedBox(height: 16),
         Text('Frequency ${_frequency.round()} Hz'),
         Slider(
@@ -249,35 +203,54 @@ class EnginePageState extends State<EnginePage> {
           onChanged: (v) => setCutoff(exp(v)),
         ),
         const Divider(),
-        Text(
-          'Render: max ${ms(numbers.renderTimeMaxNs)} ms, '
-          'mean ${ms(numbers.renderTimeMeanNs)} ms',
-        ),
-        Text(
-          'Callbacks: ${numbers.callbacks}, xruns ${numbers.xruns}, '
-          'late ${numbers.lateCallbacks}',
-          key: const Key('callbacks'),
-        ),
-        Text(
-          'Command to sound: min ${ms(numbers.commandToSoundMinNs)} ms, '
-          'mean ${ms(numbers.commandToSoundMeanNs)} ms, '
-          'max ${ms(numbers.commandToSoundMaxNs)} ms '
-          '(${numbers.commandToSoundNs.length})',
-          key: const Key('latency'),
-        ),
-        if (_error != null) Text(_error!, key: const Key('error')),
-        const SizedBox(height: 16),
-        OutlinedButton(
-          key: const Key('measure'),
-          onPressed: running && !_measuring ? measure : null,
-          child: Text(_measuring ? 'Measuring...' : 'Measure latency'),
-        ),
-        OutlinedButton(
-          key: const Key('copy'),
-          onPressed: copyReport,
-          child: const Text('Copy report'),
+        EngineNumbers(
+          engine: engine,
+          numbers: numbers,
+          children: [
+            Text(
+              'Command to sound: min ${ms(numbers.commandToSoundMinNs)} ms, '
+              'mean ${ms(numbers.commandToSoundMeanNs)} ms, '
+              'max ${ms(numbers.commandToSoundMaxNs)} ms '
+              '(${numbers.commandToSoundNs.length})',
+              key: const Key('latency'),
+            ),
+            if (_error != null) Text(_error!, key: const Key('error')),
+            const SizedBox(height: 16),
+            OutlinedButton(
+              key: const Key('measure'),
+              onPressed: isRunning(engine) && !_measuring ? measure : null,
+              child: Text(_measuring ? 'Measuring...' : 'Measure latency'),
+            ),
+          ],
         ),
       ],
     );
   }
+
+  // ######################
+  // Private
+  // ######################
+
+  // How often the page shows the numbers.
+  static const Duration _refreshInterval = Duration(milliseconds: 500);
+
+  // The pause between two measurements of the latency.
+  static const Duration _measurePause = Duration(milliseconds: 20);
+
+  // The frames over which a parameter moves to a new value.
+  static const int _rampFrames = 256;
+
+  // The amplitude of the oscillator.
+  static const double _amplitude = 0.3;
+
+  late final AudNode _osc;
+  late final AudNode _filter;
+  late final StreamSubscription<AudEngineState> _states;
+  Timer? _refresh;
+  double _frequency = 220;
+  double _cutoff = 2000;
+  bool _measuring = false;
+  String? _error;
+
+  void _rebuild() => setState(() {});
 }

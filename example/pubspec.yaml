@@ -30,6 +30,5 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
-# The example runs against the sibling checkouts of the ticket.
 flutter:
   uses-material-design: true

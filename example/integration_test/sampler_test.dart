@@ -7,6 +7,7 @@
 // and prints the numbers of the M1 budgets (ticket 17, Verification):
 //
 //   flutter test integration_test/sampler_test.dart -d <device> \
+//     --dart-define=AUD_WARMUP_SECONDS=1200 \
 //     --dart-define=AUD_MEASURE_SECONDS=600
 //
 // - the load of the instrument, at most 2 s within the cache budget;
@@ -14,8 +15,11 @@
 //   device at the live quality: at most 50 % of a block (2.67 ms); and
 //   live at the buffer the device grants;
 // - command to sound: at most a block plus the output latency;
-// - xruns while the auto-play plays with an animated UI for
-//   AUD_MEASURE_SECONDS (600 for the ten minutes on the reference device).
+// - xruns while the auto-play plays with an animated UI: first for
+//   AUD_WARMUP_SECONDS (default 0; 1200 for the twenty minutes of warm-up
+//   under thermal load), then for AUD_MEASURE_SECONDS (600 for the ten
+//   minutes on the reference device). Only the xruns, the late callbacks
+//   and the render times of the measured part count.
 //
 // AUD_ASSERT_BUDGETS=true turns the budgets into expectations; without it
 // the test prints them, since a simulator or an emulator runs at the speed
@@ -36,11 +40,36 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 
+const _warmUpSeconds = int.fromEnvironment('AUD_WARMUP_SECONDS');
 const _seconds = int.fromEnvironment('AUD_MEASURE_SECONDS', defaultValue: 5);
 const _assertBudgets = bool.fromEnvironment('AUD_ASSERT_BUDGETS');
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  // Pumps until [condition] holds, at most 15 s.
+  Future<void> until(WidgetTester tester, bool Function() condition) async {
+    final end = DateTime.now().add(const Duration(seconds: 15));
+    while (!condition()) {
+      if (DateTime.now().isAfter(end)) fail('timed out');
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump();
+    }
+  }
+
+  // Pumps the frames of the animated UI for [seconds] while the engine
+  // plays.
+  Future<void> animate(WidgetTester tester, int seconds) async {
+    final end = DateTime.now().add(Duration(seconds: seconds));
+    while (DateTime.now().isBefore(end)) {
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 16)),
+      );
+    }
+  }
 
   testWidgets('loads, plays 64 voices and auto-plays with the numbers', (
     tester,
@@ -52,7 +81,7 @@ void main() {
     final engine = page.engine;
 
     // The instrument is written and loaded.
-    await _until(tester, () => page.load != null && !page.load!.isRunning);
+    await until(tester, () => page.load != null && !page.load!.isRunning);
     final load = page.load!;
     expect(load.succeeded, isTrue, reason: load.message);
     final loadMs = load.duration!.inMicroseconds / 1000;
@@ -69,8 +98,8 @@ void main() {
     final finger = await tester.startGesture(
       tester.getCenter(find.byKey(const Key('keyboard'))),
     );
-    await _until(tester, () => engine.stats.outputPeak > 0);
-    await _until(tester, () => page.voices == 1);
+    await until(tester, () => engine.stats.outputPeak > 0);
+    await until(tester, () => page.voices == 1);
     await finger.up();
 
     // Another instrument swaps in while it plays.
@@ -81,12 +110,12 @@ void main() {
     // 64 voices live, at the buffer the device grants: the block in which
     // all of them start, then 2 s of the 64 voices playing.
     engine.graph.resetStats();
-    page.playVoices(64);
+    page.playVoices(SamplerPageState.testVoices);
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(seconds: 1)),
     );
     await tester.pump();
-    await _until(tester, () => page.voices == 64);
+    await until(tester, () => page.voices == SamplerPageState.testVoices);
     final burst = engine.numbers;
     engine.graph.resetStats();
     await tester.runAsync(
@@ -128,25 +157,29 @@ void main() {
       '${latency.outputLatencyFrames} frames',
     );
 
-    // The auto-play with the animated UI; no xrun.
-    engine.graph.resetStats();
-    final xrunsBefore = engine.numbers.xruns;
+    // The auto-play with the animated UI: the warm-up, then the measured
+    // part without an xrun; only the measured part counts.
     page.startAutoPlay();
-    final end = DateTime.now().add(Duration(seconds: _seconds));
-    while (DateTime.now().isBefore(end)) {
-      await tester.pump(const Duration(milliseconds: 16));
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 16)),
+    final start = engine.numbers;
+    await animate(tester, _warmUpSeconds);
+    engine.graph.resetStats();
+    final warm = engine.numbers;
+    if (_warmUpSeconds > 0) {
+      print(
+        'warm-up for $_warmUpSeconds s: xruns ${warm.xruns - start.xruns}, '
+        'late ${warm.lateCallbacks - start.lateCallbacks}',
       );
     }
+    await animate(tester, _seconds);
     page.stopAutoPlay();
     await tester.pump();
     final played = engine.numbers;
-    final xruns = played.xruns - xrunsBefore;
+    final xruns = played.xruns - warm.xruns;
     print(
-      'auto-play for $_seconds s: xruns $xruns, render max '
-      '${played.renderTimeMaxNs / 1e6} ms, mean '
-      '${played.renderTimeMeanNs / 1e6} ms, late ${played.lateCallbacks}',
+      'auto-play for $_seconds s after a warm-up of $_warmUpSeconds s: '
+      'xruns $xruns, render max ${played.renderTimeMaxNs / 1e6} ms, mean '
+      '${played.renderTimeMeanNs / 1e6} ms, '
+      'late ${played.lateCallbacks - warm.lateCallbacks}',
     );
     if (_assertBudgets) expect(xruns, 0);
     expect(engine.counters.renderErrors, 0);
@@ -166,11 +199,15 @@ void main() {
   testWidgets('renders 64 voices offline in blocks of 128 frames', (
     tester,
   ) async {
+    // The budget: half of a block of 128 frames at 48 kHz.
+    const blockFrames = 128;
+    const sampleRate = 48000;
+    const budgetUs = blockFrames / sampleRate * 1e6 / 2;
     final directory = await getTemporaryDirectory();
     final instrument = AudSfzTestInstrument.write(
       '${directory.path}/aud_offline_instrument',
     );
-    final graph = AudGraphFfi(maxFrames: 128, listen: false);
+    final graph = AudGraphFfi(maxFrames: blockFrames, listen: false);
     addTearDown(graph.dispose);
     AudDspSampler.registerWith(graph.hostApi);
     final node = graph.createNode(
@@ -180,6 +217,15 @@ void main() {
     graph.transaction((tx) => tx.connect(node, graph.io));
     graph.start();
     expect(graph.waitLoads(timeout: const Duration(seconds: 10)), isTrue);
+    // The instrument loaded; an instrument that failed would render
+    // silence.
+    final loads = graph.loads;
+    expect(loads, isNotEmpty);
+    expect(
+      [for (final load in loads) load.resultName],
+      everyElement('AUD_OK'),
+      reason: [for (final load in loads) load.message].join('; '),
+    );
     // An offline render uses sfizz's best quality; the budget is the live
     // one, so the render takes the live quality.
     graph.sendMessage(node, AudOscMessage('/freewheeling_sample_quality', [2]));
@@ -188,43 +234,55 @@ void main() {
       AudOscMessage('/freewheeling_oscillator_quality', [1]),
     );
     final renderer = AudOfflineRenderer(graph);
-    renderer.render(frames: 128);
-    for (var note = 30; note < 94; note++) {
+    renderer.render(frames: blockFrames);
+    // The notes of the 64-voice test of the page.
+    const first = SamplerPageState.firstVoiceNote;
+    for (var note = first; note < first + SamplerPageState.testVoices; note++) {
       for (final event in AudUmpEvent.fromMessage(
-        MidiNoteOn(channel: 0, note: note, velocity: 100),
+        MidiNoteOn(
+          channel: 0,
+          note: note,
+          velocity: SamplerPageState.voiceVelocity,
+        ),
       )) {
         graph.sendEvent(node, event);
       }
     }
     // The notes start and stream; then 2 s are measured in the graph's
     // statistics, which time each block inside the render.
-    renderer.render(frames: 48000, blockFrames: 128);
+    renderer.render(frames: sampleRate, blockFrames: blockFrames);
     graph.resetStats();
     final watch = Stopwatch()..start();
-    renderer.render(frames: 96000, blockFrames: 128);
+    renderer.render(frames: 2 * sampleRate, blockFrames: blockFrames);
     final wall = watch.elapsedMicroseconds;
     final stats = graph.stats;
+
+    // All 64 voices sounded: sfizz counts them, the output is not silent.
+    final answers = <AudNodeMessage>[];
+    graph.messages.listen(answers.add);
+    graph.sendMessage(node, AudOscMessage('/num_active_voices'));
+    renderer.render(frames: blockFrames);
+    graph.pump();
+    expect(
+      [
+        for (final answer in answers)
+          if (answer.path == '/num_active_voices') answer.arguments,
+      ],
+      [
+        [SamplerPageState.testVoices],
+      ],
+    );
+    expect(stats.outputPeak, greaterThan(0));
+
     final mean = stats.renderTimeSumNs / stats.blocksRendered / 1000;
     final result = {
       'blocks': stats.blocksRendered,
       'meanUs': mean.round(),
       'maxUs': (stats.renderTimeMaxNs / 1000).round(),
       'wallPerBlockUs': (wall / stats.blocksRendered).round(),
-      'budgetUs': 1333,
+      'budgetUs': budgetUs.round(),
     };
     print('64 voices offline at 128 frames: ${jsonEncode(result)}');
-    if (_assertBudgets) expect(mean, lessThanOrEqualTo(1333));
+    if (_assertBudgets) expect(mean, lessThanOrEqualTo(budgetUs));
   });
-}
-
-// Pumps until [condition] holds, at most 15 s.
-Future<void> _until(WidgetTester tester, bool Function() condition) async {
-  final end = DateTime.now().add(const Duration(seconds: 15));
-  while (!condition()) {
-    if (DateTime.now().isAfter(end)) fail('timed out');
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 50)),
-    );
-    await tester.pump();
-  }
 }

@@ -25,9 +25,26 @@
 - Add the review fixes of the load numbers and the budget
 
 - loadNumbers counts no load that ended with AUD_ERROR_CANCELLED as failed, also not one that a newer load replaced or whose node went
+
 - AudEngineFfi sets the cache budget inside the open: a budget the graph refuses releases the session, the stream and the graph
+
 - AudEngineConfig.cacheBudget cites lifecycle-002
+
 - The tests compare the JSON of AudEngineNumbers as a whole and the cache numbers with the cache usage
+
+- Add the review fixes of the sampler page and its test
+
+- The volume slider waits for the sampler and covers the range of its parameter, -60 to +6 dB
+- The load progress follows the running load; a load that a newer selection replaced no longer overwrites the page
+- An error of the instrument picker shows on the page instead of escaping as an unhandled error
+- Another isolate writes the instrument, once per app, so that the page opens without dropping frames
+- engine_panel.dart shows the state, route, format, start button, numbers and report of both pages; the sampler page copies its report too
+- instruments.dart holds the instruments; a test instrument whose envelope moved throws a StateError instead of playing unchanged
+- The build of the sampler page is split, its private members come last, its numbers have names, the unused directory is gone
+- The keyboard ends the notes its fingers still hold when it goes, has its landmarks and names its numbers
+- sampler_test.dart checks that the offline instrument loaded and 64 voices sound, computes the budget once and plays the notes of the page
+- AUD_WARMUP_SECONDS lets the auto-play warm the device up before the measured AUD_MEASURE_SECONDS; only the measured part counts
+- The stale comment above flutter: in the pubspec of the example is gone
 
 ## 0.2.0 - 2026-10-09
 
