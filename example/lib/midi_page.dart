@@ -152,17 +152,20 @@ class MidiPageState extends State<MidiPage>
     }
     if (defaultTargetPlatform == TargetPlatform.android &&
         !await _bluetoothPermitted()) {
-      setState(() => _error = 'Bluetooth MIDI needs the permission to scan');
+      setState(
+        () =>
+            _error = 'Bluetooth MIDI needs the permission to scan and connect',
+      );
       return;
     }
     if (defaultTargetPlatform == TargetPlatform.iOS) {
+      String? error;
       try {
         await bluetooth.showSystemDevicePicker();
-        _error = null;
       } on Object catch (e) {
-        _error = '$e';
+        error = '$e';
       }
-      _rebuild();
+      if (mounted) setState(() => _error = error);
       return;
     }
     if (!mounted) return;
@@ -182,8 +185,10 @@ class MidiPageState extends State<MidiPage>
     _rebuild();
   }
 
-  // Asks Android for what a BLE scan needs: the nearby devices (Android
-  // 12 and later) or the location (before).
+  // Asks Android for what a BLE scan and connection need: the nearby
+  // devices, to scan and to connect (Android 12 and later), or the
+  // location. The location is only needed below Android 12; the manifest
+  // declares it with maxSdkVersion 30.
   static Future<bool> _bluetoothPermitted() async {
     final statuses = await [
       Permission.bluetoothScan,
@@ -191,8 +196,9 @@ class MidiPageState extends State<MidiPage>
       Permission.locationWhenInUse,
     ].request();
     final scan = statuses[Permission.bluetoothScan]!;
+    final connect = statuses[Permission.bluetoothConnect]!;
     final location = statuses[Permission.locationWhenInUse]!;
-    return scan.isGranted || location.isGranted;
+    return (scan.isGranted && connect.isGranted) || location.isGranted;
   }
 
   /// Switches the timing of the input between fixed and immediate.

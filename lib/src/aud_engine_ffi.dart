@@ -215,9 +215,7 @@ class AudEngineFfi implements AudEngine {
     graph.start();
     stream.start();
     _enter(AudEngineState.running);
-    for (final extension in List.of(_extensions)) {
-      extension.engineStarted(this);
-    }
+    _tell((extension) => extension.engineStarted(this));
   }
 
   @override
@@ -227,16 +225,15 @@ class AudEngineFfi implements AudEngine {
         _state != AudEngineState.suspended) {
       return;
     }
-    for (final extension in List.of(_extensions)) {
-      extension.engineStopping(this);
-    }
+    _tell((extension) => extension.engineStopping(this));
     stream.stop();
     graph.stop();
     _enter(AudEngineState.stopped);
   }
 
-  /// Tells the extensions first, newest first: they stop what feeds the
-  /// graph from other threads before its memory goes. An extension that
+  /// Stops a running engine first, telling the extensions that it stops.
+  /// Then tells the extensions, newest first, that it goes: they stop what
+  /// feeds the graph from other threads before its memory goes. An extension that
   /// throws does not keep the engine from releasing the stream, the graph
   /// and the session; the first error is thrown afterwards.
   @override
@@ -244,6 +241,15 @@ class AudEngineFfi implements AudEngine {
     if (_state == AudEngineState.disposed) return;
     Object? error;
     StackTrace? trace;
+    try {
+      stop();
+    } catch (e, s) {
+      error = e;
+      trace = s;
+      stream.stop();
+      graph.stop();
+      _enter(AudEngineState.stopped);
+    }
     for (final extension in _extensions.reversed.toList()) {
       try {
         extension.engineDisposing(this);
@@ -253,7 +259,6 @@ class AudEngineFfi implements AudEngine {
       }
     }
     _extensions.clear();
-    stop();
     unawaited(_subscription.cancel());
     unawaited(_graphSubscription.cancel());
     stream.close();
@@ -389,13 +394,18 @@ class AudEngineFfi implements AudEngine {
   /// Tells the extensions that the timing starts again. They hear it from a
   /// notification, so an error goes to the zone instead of the caller.
   void _timingChanged() {
-    for (final extension in List.of(_extensions)) {
+    _tell((extension) {
       try {
         extension.engineTimingChanged(this);
       } catch (e, s) {
         Zone.current.handleUncaughtError(e, s);
       }
-    }
+    });
+  }
+
+  /// Calls [f] with each extension, in the order they were added.
+  void _tell(void Function(AudEngineExtension extension) f) {
+    List.of(_extensions).forEach(f);
   }
 
   void _suspend() {

@@ -565,8 +565,10 @@ void main() {
           'b stopping running',
           'a started running',
           'b started running',
-          'b disposing running, graph alive',
-          'a disposing running, graph alive',
+          'a stopping running',
+          'b stopping running',
+          'b disposing stopped, graph alive',
+          'a disposing stopped, graph alive',
         ]);
         expect(engine.extensions, isEmpty);
       });
@@ -607,9 +609,24 @@ void main() {
         expect(log, [
           'a started running',
           'b started running',
-          'b disposing running, graph alive',
-          'a disposing running, graph alive',
+          'a stopping running',
+          'b stopping running',
+          'b disposing stopped, graph alive',
+          'a disposing stopped, graph alive',
         ]);
+        expect(engine.graph.isDisposed, isTrue);
+        expect(engine.stream.isClosed, isTrue);
+        expect(engine.state, AudEngineState.disposed);
+      });
+
+      test('a throwing stop does not keep the graph alive', () {
+        final engine = open();
+        final log = <String>[];
+        engine
+          ..addExtension(_Extension('a', log, throwOnStop: true))
+          ..start();
+        expect(engine.dispose, throwsStateError);
+        expect(log, ['a started running', 'a disposing stopped, graph alive']);
         expect(engine.graph.isDisposed, isTrue);
         expect(engine.stream.isClosed, isTrue);
         expect(engine.state, AudEngineState.disposed);
@@ -656,6 +673,7 @@ class _Extension extends AudEngineExtension {
     this.log, {
     this.throwOnDispose = false,
     this.throwOnTiming = false,
+    this.throwOnStop = false,
   });
 
   @override
@@ -663,14 +681,17 @@ class _Extension extends AudEngineExtension {
   final List<String> log;
   final bool throwOnDispose;
   final bool throwOnTiming;
+  final bool throwOnStop;
 
   @override
   void engineStarted(AudEngine engine) =>
       log.add('$name started ${engine.stream.state.name}');
 
   @override
-  void engineStopping(AudEngine engine) =>
-      log.add('$name stopping ${engine.stream.state.name}');
+  void engineStopping(AudEngine engine) {
+    if (throwOnStop) throw StateError('stop');
+    log.add('$name stopping ${engine.stream.state.name}');
+  }
 
   @override
   void engineTimingChanged(AudEngine engine) {

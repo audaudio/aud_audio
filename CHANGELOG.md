@@ -46,6 +46,8 @@
 
 - The example resolves aud_midi_standard from pub.dev instead of a sibling checkout
 
+- Add review fixes of ticket 26
+
 ## 0.3.0 - 2026-10-12
 
 ### Added
