@@ -543,7 +543,171 @@ void main() {
         );
       });
     });
+
+    group('tells its extensions (ticket 26)', () {
+      test('started, stopping and disposing, newest first at the end', () {
+        final engine = open();
+        final log = <String>[];
+        final a = _Extension('a', log);
+        final b = _Extension('b', log);
+        engine
+          ..addExtension(a)
+          ..addExtension(b);
+        expect(engine.extensions, [a, b]);
+        engine.start();
+        engine.stop();
+        engine.start();
+        engine.dispose();
+        expect(log, [
+          'a started running',
+          'b started running',
+          'a stopping running',
+          'b stopping running',
+          'a started running',
+          'b started running',
+          'a stopping running',
+          'b stopping running',
+          'b disposing stopped, graph alive',
+          'a disposing stopped, graph alive',
+        ]);
+        expect(engine.extensions, isEmpty);
+      });
+
+      test('a new format starts the timing again', () async {
+        final engine = open();
+        final log = <String>[];
+        engine
+          ..addExtension(_Extension('a', log))
+          ..start();
+        final changed = next(engine, AudIoNotificationType.formatChanged);
+        engine.session.inject(AudIoFault.sampleRate, 44100);
+        await changed;
+        await _waitFor(() => log.contains('a timing 44100'));
+      });
+
+      test('an error of the timing goes to the zone', () async {
+        final errors = <Object>[];
+        await runZonedGuarded(() async {
+          final engine = open();
+          engine
+            ..addExtension(_Extension('a', [], throwOnTiming: true))
+            ..start();
+          engine.session.inject(AudIoFault.sampleRate, 44100);
+          await _waitFor(() => errors.isNotEmpty);
+        }, (e, _) => errors.add(e));
+        expect(errors.single, isA<StateError>());
+      });
+
+      test('a throwing extension does not keep the graph alive', () {
+        final engine = open();
+        final log = <String>[];
+        engine
+          ..addExtension(_Extension('a', log))
+          ..addExtension(_Extension('b', log, throwOnDispose: true))
+          ..start();
+        expect(engine.dispose, throwsStateError);
+        expect(log, [
+          'a started running',
+          'b started running',
+          'a stopping running',
+          'b stopping running',
+          'b disposing stopped, graph alive',
+          'a disposing stopped, graph alive',
+        ]);
+        expect(engine.graph.isDisposed, isTrue);
+        expect(engine.stream.isClosed, isTrue);
+        expect(engine.state, AudEngineState.disposed);
+      });
+
+      test('a throwing stop does not keep the graph alive', () {
+        final engine = open();
+        final log = <String>[];
+        engine
+          ..addExtension(_Extension('a', log, throwOnStop: true))
+          ..start();
+        expect(engine.dispose, throwsStateError);
+        expect(log, ['a started running', 'a disposing stopped, graph alive']);
+        expect(engine.graph.isDisposed, isTrue);
+        expect(engine.stream.isClosed, isTrue);
+        expect(engine.state, AudEngineState.disposed);
+      });
+
+      test('the timing is the graph\'s after the first block', () {
+        final engine = open();
+        build(engine.graph);
+        expect(engine.timing.valid, isFalse);
+        engine.start();
+        play(engine, 960);
+        final timing = engine.timing;
+        expect(timing.valid, isTrue);
+        expect(timing.sampleRate, engine.format.sampleRate);
+        expect(timing.samplePosition + timing.frames, 960);
+        expect(timing.maxPeriodNs, greaterThan(0));
+        expect(
+          timing.hostTimeAt(timing.samplePosition + 48),
+          greaterThan(timing.hostTimeNs),
+        );
+      });
+
+      test('twice is refused, removed hears nothing, disposed refuses', () {
+        final engine = open();
+        final log = <String>[];
+        final a = _Extension('a', log);
+        engine.addExtension(a);
+        expect(() => engine.addExtension(a), throwsStateError);
+        engine
+          ..removeExtension(a)
+          ..start()
+          ..dispose();
+        expect(log, isEmpty);
+        expect(() => engine.addExtension(a), throwsStateError);
+      });
+    });
   });
+}
+
+// Records what the engine tells it, with the state the engine is in.
+class _Extension extends AudEngineExtension {
+  _Extension(
+    this.name,
+    this.log, {
+    this.throwOnDispose = false,
+    this.throwOnTiming = false,
+    this.throwOnStop = false,
+  });
+
+  @override
+  final String name;
+  final List<String> log;
+  final bool throwOnDispose;
+  final bool throwOnTiming;
+  final bool throwOnStop;
+
+  @override
+  void engineStarted(AudEngine engine) =>
+      log.add('$name started ${engine.stream.state.name}');
+
+  @override
+  void engineStopping(AudEngine engine) {
+    if (throwOnStop) throw StateError('stop');
+    log.add('$name stopping ${engine.stream.state.name}');
+  }
+
+  @override
+  void engineTimingChanged(AudEngine engine) {
+    if (throwOnTiming) throw StateError('timing');
+    log.add('$name timing ${engine.format.sampleRate.round()}');
+  }
+
+  @override
+  void engineDisposing(AudEngine engine) {
+    final graph = engine.graph as AudGraphFfi;
+    log.add(
+      '$name disposing ${engine.stream.state.name}, '
+      'graph ${graph.isDisposed ? 'gone' : 'alive'}',
+    );
+    if (throwOnDispose) throw StateError('dispose');
+  }
 }
 
 class _WebPackage implements AudNodePackage {

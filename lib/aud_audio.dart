@@ -19,6 +19,7 @@ export 'package:aud_audio_io/aud_audio_io.dart';
 export 'src/aud_audio_version.dart';
 export 'src/aud_engine.dart';
 export 'src/aud_engine_config.dart';
+export 'src/aud_engine_extension.dart';
 export 'src/aud_engine_numbers.dart';
 export 'src/aud_engine_state.dart';
 export 'src/aud_node_package.dart';

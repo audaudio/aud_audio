@@ -11,6 +11,7 @@ import 'package:aud_audio_graph/aud_audio_graph.dart';
 import 'package:aud_audio_io/aud_audio_io.dart';
 
 import 'aud_engine_config.dart';
+import 'aud_engine_extension.dart';
 import 'aud_engine_factory_stub.dart'
     if (dart.library.ffi) 'aud_engine_factory_native.dart'
     as platform_factory;
@@ -78,6 +79,12 @@ abstract interface class AudEngine {
   /// The statistics of the graph.
   AudGraphStats get stats;
 
+  /// The timing of the engine as its last block saw it, for the control
+  /// side (midi-003): the fitted output time of the block, the output
+  /// latency the stream reported and the longest period between two
+  /// renders; not valid before the first block.
+  AudGraphTiming get timing;
+
   /// The node types the graph knows: its own and those of the packages.
   List<AudNodeDescriptor> get nodeTypes;
 
@@ -86,6 +93,17 @@ abstract interface class AudEngine {
 
   /// Render time, xruns and the command-to-sound latencies measured so far.
   AudEngineNumbers get numbers;
+
+  /// The extensions, in the order they were added.
+  List<AudEngineExtension> get extensions;
+
+  // ...........................................................................
+  /// Adds [extension]; it hears the lifecycle from now on and is told
+  /// before the engine disposes the graph.
+  void addExtension(AudEngineExtension extension);
+
+  /// Removes [extension]; the engine no longer tells it anything.
+  void removeExtension(AudEngineExtension extension);
 
   // ...........................................................................
   /// Registers the packages and prepares the graph for the format of the

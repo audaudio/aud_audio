@@ -1,5 +1,63 @@
 # Changelog
 
+## 0.4.0 - 2026-10-12
+
+### Added
+
+- Add engine extensions and the engine's timing
+
+- AudEngineExtension: the engine tells an extension when it started, stops, when its timing starts again and, before it disposes the graph, synchronously
+
+- AudEngine.timing: the graph's timing of the last block for the control side (midi-003)
+
+- The example resolves core and the sampler through their tags and asks for aud_dsp_sampler ^0.2.0
+
+- Add the MIDI keyboard page of the example
+
+- MidiPage: a MIDI port plays the sampler through aud_audio_midi, with a port picker, the activity, the timing and the input to output time
+
+- integration_test/midi_test.dart: a recorded performance through a source of the app, with warm-up and measured minutes; midi_paths_test.dart measures the native and the Dart paths (midi-002)
+
+- Android: the loopback device of aud_midi_android and the Bluetooth permissions; iOS: Bluetooth, local network and background audio
+
+- aud_midi_standard from pub.dev; the example runs against the ticket's checkouts
+
+- Add the guided keyboard test and the path measurement
+
+- integration_test/midi_keyboard_test.dart: a person plays a keyboard, then the hot-plug with a held chord and Bluetooth MIDI, guided by prompts on the page
+
+- midi_paths_test.dart measures the native and the Dart paths with sources of its own at one C
+
+- The MIDI page: a Bluetooth MIDI dialog, a prompt banner, C and m of the input
+
+- Add Bluetooth and permissions to the MIDI page
+
+- The page uses Apple's picker on iOS and asks Android for the Bluetooth scan permission
+
+- The guided keyboard test forwards touches and can skip its phases
+
+- README for extensions, timing and the MIDI page
+
+- Add permission_handler 12 to the example
+
+- Version 13 needs Android SDK platform 37
+
+- Add aud_midi_standard from pub.dev to the example
+
+- The example resolves aud_midi_standard from pub.dev instead of a sibling checkout
+
+- Add review fixes of ticket 26
+
+- Add independent constraints on the aud_midi packages
+
+- Add review fixes of ticket 26
+
+- dispose() stops a running engine first, so the extensions hear engineStopping before engineDisposing
+
+- One helper tells the extensions that the engine started, stops or changed its timing
+
+- Example: Bluetooth MIDI on Android needs the permissions to scan and to connect, or the location below Android 12
+
 ## 0.3.0 - 2026-10-12
 
 ### Added

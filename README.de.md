@@ -104,15 +104,23 @@ print(engine.numbers.toJson());
 print(engine.report());
 ```
 
-`example/` hat zwei Seiten auf einer Engine: Oszillator -> Filter ->
-Ausgang mit Frequenz und Cutoff, und den SFZ-Sampler von
-`aud_dsp_sampler` mit Instrumenten, die auf dem Gerät erzeugt werden,
-einer Multi-Touch-Tastatur, Sustain, Modulation, dem Ladevorgang, einem
-Test mit 64 Stimmen und einem Auto-Play mit animierter UI; beide mit den
-Zahlen und einem kopierbaren Bericht. `sampler_test.dart` misst die
-M1-Budgets von Ticket 17; `AUD_WARMUP_SECONDS` lässt das Auto-Play das
-Gerät zuerst aufwärmen, und nur die Xruns der folgenden
-`AUD_MEASURE_SECONDS` zählen:
+`example/` hat drei Seiten auf einer Engine: Oszillator -> Filter ->
+Ausgang mit Frequenz und Cutoff; den SFZ-Sampler von `aud_dsp_sampler`
+mit Instrumenten, die auf dem Gerät erzeugt werden, einer
+Multi-Touch-Tastatur, Sustain, Modulation, dem Ladevorgang, einem Test mit
+64 Stimmen und einem Auto-Play mit animierter UI; und das MIDI-Keyboard
+von Ticket 26: Ein Port von `aud_midi` spielt den Sampler über
+`aud_audio_midi`, mit Port-Auswahl, Bluetooth-MIDI, der Aktivität des
+Ports, dem festen oder sofortigen Timing und der gemessenen Zeit vom
+Eingang zum Ausgang. Alle mit den Zahlen und einem kopierbaren Bericht.
+`sampler_test.dart` misst die M1-Budgets von Ticket 17;
+`AUD_WARMUP_SECONDS` lässt das Auto-Play das Gerät zuerst aufwärmen, und
+nur die Xruns der folgenden `AUD_MEASURE_SECONDS` zählen.
+`midi_test.dart` spielt eine aufgenommene Performance aus einer Quelle
+der App ebenso in die MIDI-Seite, `midi_paths_test.dart` misst den
+nativen und die Dart-Wege von midi-002, und `midi_keyboard_test.dart`
+führt eine Person durch das Spielen eines echten Keyboards, das Hot-Plug
+und Bluetooth-MIDI:
 
 ```bash
 cd example
@@ -122,6 +130,10 @@ flutter test integration_test/engine_test.dart -d <device> \
 flutter test integration_test/sampler_test.dart -d <device> \
   --dart-define=AUD_WARMUP_SECONDS=1200 \
   --dart-define=AUD_MEASURE_SECONDS=600 --dart-define=AUD_ASSERT_BUDGETS=true
+flutter test integration_test/midi_test.dart -d <device> \
+  --dart-define=AUD_WARMUP_SECONDS=1200 --dart-define=AUD_MEASURE_SECONDS=600
+flutter test integration_test/midi_keyboard_test.dart -d <device> \
+  --dart-define=AUD_PLAY_SECONDS=600 --dart-define=AUD_BLUETOOTH=true
 ```
 
 ## Funktionsweise
@@ -136,7 +148,15 @@ flutter test integration_test/sampler_test.dart -d <device> \
   bestätigt dem Stream die Generation des Formats. Unterbrechungen und
   verlorene Geräte suspendieren den Graphen, bis der Stream ihr Ende
   meldet.
-- Das Herunterfahren kehrt den Start um: Stream, Graph, Session.
+- Das Herunterfahren kehrt den Start um: Stream, Graph, Session. Vorher
+  sagt die Engine es ihren Erweiterungen (`AudEngineExtension`, z. B. der
+  MIDI-Brücke von `aud_audio_midi`), die neueste zuerst und synchron,
+  damit sie anhalten, was den Graphen aus anderen Threads speist;
+  Erweiterungen hören auch, wenn die Engine gestartet ist, stoppt und wenn
+  ihr Timing neu beginnt.
+- `AudEngine.timing` ist das Timing des Graphen aus dem letzten Block für
+  die Steuerseite: die angepasste Ausgangszeit, die gemeldete
+  Ausgangslatenz und die Abstände zwischen den Renders (midi-003).
 - Command-to-Sound läuft von der Host-Zeit einer leeren Transaktion bis
   zur Ausgabezeit des ersten Blocks, der sie rendert: Der Graph meldet die
   Sample-Position des Blocks, die letzte `AudStreamTime` des Streams

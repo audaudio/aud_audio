@@ -37,46 +37,45 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "9f388f7baa937f3fb2ccc17b1950754bb185e335"
+      resolved-ref: "956780dfe4a864883ee06a944a8b3063b261a6f8"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_core.git"
     source: git
-    version: "0.5.0"
+    version: "0.5.1"
   aud_audio_graph:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: ce762397921d02650b35069170f38ba17e7a82c3
+      resolved-ref: "28c43930245f81bb62431e839f85fc1446402a2f"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_graph.git"
     source: git
-    version: "0.5.0"
+    version: "0.5.1"
   aud_audio_io:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "918bc993fad29e0490d468e0faad028dbaa8e58f"
+      resolved-ref: "94a5ff93f7b6eb6aba18ac1eb5bbc2b392136bab"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_io.git"
     source: git
-    version: "0.3.1"
+    version: "0.3.2"
   aud_audio_web:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "20e0714e4526fb9f218be39f93e96fc919c4c4eb"
+      resolved-ref: "6502cf3414e8fad23104953b060870f724b2f181"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_web.git"
     source: git
-    version: "0.0.5"
+    version: "0.0.6"
   aud_midi_standard:
     dependency: transitive
     description:
-      path: "."
-      resolved-ref: b45c6aa1cd74b7074be43ba0ff34fb939eec417d
-      tag-pattern: "{{version}}"
-      url: "https://github.com/audmidi/aud_midi_standard.git"
-    source: git
+      name: aud_midi_standard
+      sha256: "6ce86e854c3e2f510b6e48de194e4a1b020f2c4568e5fa52e464771847b6043e"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.1.0"
   boolean_selector:
     dependency: transitive
