@@ -32,7 +32,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
-import 'dart:math';
 
 import 'package:aud_audio/aud_audio_ffi.dart';
 import 'package:aud_audio_example/main.dart';
@@ -162,48 +161,75 @@ void main() {
     final graph = engine.graph;
 
     final source = (await tester.runAsync(() => MidiTestSource.open(midi)))!;
-    await tester.runAsync(() => page.pick(source.input));
-    await tester.pump();
-    final native = page.input!;
-    final dart2 = (await tester.runAsync(
-      () => bridge.openInput(
-        source.input,
-        node: graph.createNode(AudMidiInputNode.typeId, name: 'dart-2'),
-        path: AudMidiPath.dart,
+    final input = midi.input(source.input.id)!;
+    final clock = AudMidiClock();
+
+    // Three sources with a node each, outside the bridge, so that all three
+    // keep the same C; only the native one plays the sampler.
+    var token = 0x26;
+    ({AudEventSourceFfi source, AudMidiAdapter adapter, int token}) measured(
+      String name,
+    ) {
+      final node = graph.createNode(AudMidiInputNode.typeId, name: name);
+      graph.transaction((_) {});
+      final created =
+          graph.createEventSource(
+                node,
+                latencyNs: bridge.fixedLatencyNs,
+                capacity: bridge.options.capacity,
+              )
+              as AudEventSourceFfi;
+      final producer = token++;
+      created.attach(producer);
+      return (
+        token: producer,
+        source: created,
+        adapter: AudMidiAdapter(
+          source: created.address,
+          push: AudEventSourceFfi.pushFunctionAddress,
+          release: AudEventSourceFfi.releaseFunctionAddress,
+          size: AudEventSourceFfi.sizeFunctionAddress,
+          capacity: created.capacity,
+        ),
+      );
+    }
+
+    final native = measured('native');
+    graph.transaction(
+      (tx) => tx.connectEvents(native.source.node, page.sampler!),
+    );
+    final tap = (await tester.runAsync(
+      () => input.attachNativeTap(
+        MidiNativeTap(
+          function: AudMidiAdapter.tapFunction,
+          user: native.adapter.address,
+        ),
       ),
     ))!;
-    // The one-hop path: a source and an adapter the isolate feeds.
-    final node1 = graph.createNode(AudMidiInputNode.typeId, name: 'dart-1');
-    graph.transaction((_) {});
-    final source1 =
-        graph.createEventSource(
-              node1,
-              latencyNs: bridge.fixedLatencyNs,
-              capacity: bridge.options.capacity,
-            )
-            as AudEventSourceFfi;
-    const token = 0x26;
-    source1.attach(token);
-    final adapter1 = AudMidiAdapter(
-      source: source1.address,
-      push: AudEventSourceFfi.pushFunctionAddress,
-      release: AudEventSourceFfi.releaseFunctionAddress,
-      size: AudEventSourceFfi.sizeFunctionAddress,
-      capacity: source1.capacity,
-    );
+    final dart2 = measured('dart-2');
+    final packets = input.packets.listen((packet) {
+      final time = clock.toEngineNs(packet.time);
+      switch (packet) {
+        case MidiUmpPacket(:final words):
+          dart2.adapter.pushUmp(words, hostTimeNs: time);
+        case MidiBytesPacket(:final bytes):
+          dart2.adapter.pushBytes(bytes.bytes, hostTimeNs: time);
+      }
+    });
+    final dart1 = measured('dart-1');
     final ready = ReceivePort();
     await tester.runAsync(
       () => Isolate.spawn<_OneHop>(_oneHop, (
         ready: ready.sendPort,
         port: source.input.name,
         tap: AudMidiAdapter.tapFunction,
-        adapter: adapter1.address,
+        adapter: dart1.adapter.address,
       )),
     );
     final oneHop = (await tester.runAsync(() => ready.first)) as SendPort?;
-    final sources = {
+    final sources = <String, AudEventSource>{
       'native': native.source,
-      'dart-1': source1 as AudEventSource,
+      'dart-1': dart1.source,
       'dart-2': dart2.source,
     };
 
@@ -212,9 +238,7 @@ void main() {
       () => Future<void>.delayed(const Duration(milliseconds: 500)),
     );
     final timing = engine.timing;
-    final withoutMargin =
-        max(timing.maxPeriodNs, timing.nominalPeriodNs) +
-        timing.outputLatencyNs.round();
+    final withoutMargin = bridge.baseLatencyNs;
 
     // A: the native path without the margin.
     for (final s in sources.values) {
@@ -260,9 +284,17 @@ void main() {
     ];
     final report = {
       'platform': timing.toJson(),
+      'format': {
+        'sampleRate': engine.format.sampleRate,
+        'bufferFrames': engine.format.bufferFrames,
+        'burstFrames': engine.format.burstFrames,
+        'maxFrames': engine.format.maxFrames,
+      },
+      'fixedLatencyMsNow': page.bridge!.fixedLatencyNs / 1e6,
       'blockMs': timing.maxPeriodNs / 1e6,
       'outputLatencyMs': timing.outputLatencyNs / 1e6,
       'withoutMarginMs': withoutMargin / 1e6,
+      'periodMs': bridge.periodNs / 1e6,
       'latencyMs': latency / 1e6,
       'marginRun': windowA.toJson(),
       'oneHopRunning': oneHop != null,
@@ -281,13 +313,19 @@ void main() {
 
     oneHop?.send('stop');
     await tester.runAsync(() async {
+      await tap.detach();
+      await packets.cancel();
       await Future<void>.delayed(const Duration(milliseconds: 200));
       await source.close();
     });
-    adapter1.close();
-    source1.detach(token);
-    adapter1.dispose();
-    source1.dispose();
+    // The producers stopped: the tap detached, the stream and the isolate
+    // ended; then each source lets its producer go.
+    for (final m in [native, dart1, dart2]) {
+      m.adapter.dispose();
+      m.source
+        ..detach(m.token)
+        ..dispose();
+    }
     expect(windows['native']!.delivered, greaterThan(0));
   });
 }

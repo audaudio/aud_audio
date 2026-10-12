@@ -74,6 +74,13 @@ class MidiPageState extends State<MidiPage>
   /// The last error of the page, shown on it; null without one.
   String? get error => _error;
 
+  /// An instruction shown on top of the page, e.g. by a guided test.
+  String? get prompt => _prompt;
+  set prompt(String? text) {
+    _prompt = text;
+    _rebuild();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -131,6 +138,28 @@ class MidiPageState extends State<MidiPage>
     _rebuild();
   }
 
+  /// Scans for Bluetooth LE MIDI devices and connects the one the user
+  /// picks; its ports then appear in the port picker.
+  Future<void> connectBluetooth() async {
+    final bluetooth = midi?.bluetooth;
+    if (bluetooth == null) {
+      setState(() => _error = 'No Bluetooth MIDI on this platform');
+      return;
+    }
+    final picked = await showDialog<MidiBlePeripheralInfo>(
+      context: context,
+      builder: (context) => _BluetoothDialog(bluetooth: bluetooth),
+    );
+    if (picked == null) return;
+    try {
+      await bluetooth.connect(picked.id);
+      _error = null;
+    } on Object catch (e) {
+      _error = '$e';
+    }
+    _rebuild();
+  }
+
   /// Switches the timing of the input between fixed and immediate.
   Future<void> setTiming(AudSourceTiming timing) async {
     await input?.setTiming(timing);
@@ -161,6 +190,18 @@ class MidiPageState extends State<MidiPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        if (_prompt case final prompt?)
+          Card(
+            key: const Key('midi-prompt'),
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                prompt,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+          ),
         EngineHeader(engine: engine, onToggled: _rebuild),
         const SizedBox(height: 16),
         Row(
@@ -191,6 +232,14 @@ class MidiPageState extends State<MidiPage>
                 onChanged: (port) =>
                     port == null ? null : unawaited(pick(port)),
               ),
+            ),
+            IconButton(
+              key: const Key('midi-bluetooth'),
+              tooltip: 'Bluetooth MIDI',
+              icon: const Icon(Icons.bluetooth),
+              onPressed: midi == null
+                  ? null
+                  : () => unawaited(connectBluetooth()),
             ),
             const SizedBox(width: 12),
             _Activity(active: _active, waiting: input?.isWaiting ?? false),
@@ -233,7 +282,7 @@ class MidiPageState extends State<MidiPage>
           Text(
             'Path ${stats.path?.name ?? 'waiting for the port'}, '
             'timing ${stats.timing.name}'
-            '${stats.timing == AudSourceTiming.fixed ? ', C ${ms(stats.latencyNs)} ms' : ''}',
+            '${stats.timing == AudSourceTiming.fixed ? ', C ${ms(stats.latencyNs)} ms (m ${ms(stats.marginNs)} ms)' : ''}',
           ),
           Text(
             key: const Key('midi-latency'),
@@ -288,6 +337,7 @@ class MidiPageState extends State<MidiPage>
   int _delivered = 0;
   DateTime _lastEvent = DateTime.fromMillisecondsSinceEpoch(0);
   String? _error;
+  String? _prompt;
 
   bool get _active => DateTime.now().difference(_lastEvent) < _activityTime;
 
@@ -382,4 +432,73 @@ class _Activity extends StatelessWidget {
       ),
     );
   }
+}
+
+// #############################################################################
+// Lists the Bluetooth LE MIDI devices of a scan; a tap picks one.
+class _BluetoothDialog extends StatefulWidget {
+  const _BluetoothDialog({required this.bluetooth});
+
+  final MidiBluetooth bluetooth;
+
+  @override
+  State<_BluetoothDialog> createState() => _BluetoothDialogState();
+}
+
+class _BluetoothDialogState extends State<_BluetoothDialog> {
+  final Map<String, MidiBlePeripheralInfo> _found = {};
+  StreamSubscription<MidiBlePeripheralInfo>? _scan;
+  String? _error;
+  bool _scanning = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scan = widget.bluetooth
+        .scan(timeout: const Duration(seconds: 15))
+        .listen(
+          (peripheral) => setState(() => _found[peripheral.id] = peripheral),
+          onError: (Object e) => setState(() => _error = '$e'),
+          onDone: () {
+            if (mounted) setState(() => _scanning = false);
+          },
+        );
+  }
+
+  @override
+  void dispose() {
+    unawaited(_scan?.cancel());
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: Text(_scanning ? 'Bluetooth MIDI: scanning ...' : 'Bluetooth MIDI'),
+    content: SizedBox(
+      width: 320,
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          if (_error case final error?) Text(error),
+          if (_found.isEmpty && _error == null) const Text('No device yet'),
+          for (final peripheral in _found.values)
+            ListTile(
+              title: Text(
+                peripheral.name.isEmpty ? peripheral.id : peripheral.name,
+              ),
+              subtitle: Text(
+                peripheral.rssi == null ? '' : '${peripheral.rssi} dBm',
+              ),
+              onTap: () => Navigator.of(context).pop(peripheral),
+            ),
+        ],
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('Close'),
+      ),
+    ],
+  );
 }

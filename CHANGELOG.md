@@ -15,9 +15,18 @@
 - Add the MIDI keyboard page of the example
 
 - MidiPage: a MIDI port plays the sampler through aud_audio_midi, with a port picker, the activity, the timing and the input to output time
+
 - integration_test/midi_test.dart: a recorded performance through a source of the app, with warm-up and measured minutes; midi_paths_test.dart measures the native and the Dart paths (midi-002)
+
 - Android: the loopback device of aud_midi_android and the Bluetooth permissions; iOS: Bluetooth, local network and background audio
+
 - aud_midi_standard from pub.dev; the example runs against the ticket's checkouts
+
+- Add the guided keyboard test and the path measurement
+
+- integration_test/midi_keyboard_test.dart: a person plays a keyboard, then the hot-plug with a held chord and Bluetooth MIDI, guided by prompts on the page
+- midi_paths_test.dart measures the native and the Dart paths with sources of its own at one C
+- The MIDI page: a Bluetooth MIDI dialog, a prompt banner, C and m of the input
 
 ## 0.3.0 - 2026-10-12
 

@@ -132,9 +132,18 @@ void main() {
     final timing = engine.timing;
     final report = {
       'port': port.name,
+      'format': {
+        'sampleRate': engine.format.sampleRate,
+        'bufferFrames': engine.format.bufferFrames,
+        'burstFrames': engine.format.burstFrames,
+        'maxFrames': engine.format.maxFrames,
+      },
+      'fixedLatencyMsNow': page.bridge!.fixedLatencyNs / 1e6,
       'path': input.path?.name,
       'timing': input.timing.name,
       'latencyMs': input.source.latencyNs / 1e6,
+      'marginMs': input.marginNs / 1e6,
+      'periodMs': page.bridge!.periodNs / 1e6,
       'blockMs': timing.maxPeriodNs / 1e6,
       'nominalBlockMs': timing.nominalPeriodNs / 1e6,
       'outputLatencyMs': timing.outputLatencyNs / 1e6,
