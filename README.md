@@ -21,7 +21,9 @@ Part of the Audanika Audio Engine; planned in [aud_audio_pm](https://github.com/
 - One API on native platforms and the web (web-001):
   `aud_audio.dart` imports no `dart:ffi`; the web engine follows with S5
 - The first numbers of S24: render time, xruns and command-to-sound
-  latency
+  latency; since ticket 25 the sample cache and the loads of the nodes
+- One sample cache budget for the process, set through `AudEngineConfig`
+  (lifecycle-002)
 
 ## Installation
 
@@ -45,6 +47,8 @@ versions of `aud_audio_core`, `aud_audio_graph`, `aud_audio_io` and
   site
 - [The plan of ticket 22](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-09-22-build-the-aud-audio-engine.md)
   with its decisions, measurements and findings
+- [The plan of ticket 25](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-11-25-build-the-sfz-sampler-on-sfizz-for-ios-and-android.md)
+  with the sampler, its measurements and findings
 - The guides in [`doc/guides`](doc/guides)
 
 ## Code Examples
@@ -74,7 +78,10 @@ A DSP package registers its node types at the start
 
 ```dart
 final engine = AudEngine(
+  config: const AudEngineConfig(cacheBudget: 128 << 20),
   packages: [
+    // The SFZ sampler of aud_dsp_sampler; the app depends on it.
+    AudNativeNodePackage(AudDspSampler.name, AudDspSampler.register),
     AudNativeNodePackage(
       'aud_dsp_effects',
       Native.addressOf(aud_dsp_effects_register),
@@ -93,14 +100,23 @@ print(engine.numbers.toJson());
 print(engine.report());
 ```
 
-`example/` plays oscillator -> filter -> output with frequency and cutoff,
-start and stop, the current route and a copyable report:
+`example/` has two pages on one engine: oscillator -> filter -> output
+with frequency and cutoff, and the SFZ sampler of `aud_dsp_sampler` with
+instruments generated on the device, a multi-touch keyboard, sustain,
+modulation, the load, a test of 64 voices and an auto-play with an animated
+UI; both with the numbers and a copyable report. `sampler_test.dart`
+measures the M1 budgets of ticket 17; `AUD_WARMUP_SECONDS` lets the
+auto-play warm the device up first, and only the xruns of the following
+`AUD_MEASURE_SECONDS` count:
 
 ```bash
 cd example
 flutter run -d <ios simulator | android emulator | device>
 flutter test integration_test/engine_test.dart -d <device> \
   --dart-define=AUD_MEASURE_SECONDS=600
+flutter test integration_test/sampler_test.dart -d <device> \
+  --dart-define=AUD_WARMUP_SECONDS=1200 \
+  --dart-define=AUD_MEASURE_SECONDS=600 --dart-define=AUD_ASSERT_BUDGETS=true
 ```
 
 ## How It Works

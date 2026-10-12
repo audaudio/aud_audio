@@ -25,6 +25,8 @@ class AudEngineConfig {
   ///   it, the client calls `AudEngine.pump`
   /// - [recoveryTimeout] how long the stream tries to recover a lost device
   /// - [graphOptions] the capacities and policies of the graph
+  /// - [cacheBudget] the sample cache budget of the process in bytes; null
+  ///   keeps the budget the process has (256 MB until one is set)
   const AudEngineConfig({
     this.backend = AudIoBackend.platform,
     this.outputChannels = 2,
@@ -36,7 +38,12 @@ class AudEngineConfig {
     this.listen = true,
     this.recoveryTimeout = Duration.zero,
     this.graphOptions = const AudGraphOptions(),
-  }) : assert(outputChannels > 0, 'the graph needs output channels');
+    this.cacheBudget,
+  }) : assert(outputChannels > 0, 'the graph needs output channels'),
+       assert(
+         cacheBudget == null || cacheBudget >= 0,
+         'the budget is a number of bytes',
+       );
 
   // ...........................................................................
   /// The platform's devices or the null device.
@@ -68,6 +75,13 @@ class AudEngineConfig {
 
   /// The capacities and policies of the graph.
   final AudGraphOptions graphOptions;
+
+  /// The sample cache budget of the process in bytes, which every engine
+  /// and graph of the process shares (lifecycle-002, ticket 25): the
+  /// samplers keep the samples they loaded and streamed within it. Null
+  /// keeps the budget the process has; an engine with a budget sets it when
+  /// it is created.
+  final int? cacheBudget;
 
   /// The stream configuration: an output that holds the render function
   /// after a change of the format until the engine acknowledges it.

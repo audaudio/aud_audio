@@ -1,5 +1,5 @@
 name: aud_audio_example
-description: "Example app of the Audanika Audio Engine: oscillator, filter and output on iOS and Android, with the numbers of the engine."
+description: "Example app of the Audanika Audio Engine: oscillator, filter and output, and the SFZ sampler with a keyboard, on iOS and Android, with the numbers of the engine."
 publish_to: none
 version: 0.2.0+1
 
@@ -11,6 +11,17 @@ dependencies:
     sdk: flutter
   aud_audio:
     path: ../
+  aud_dsp_sampler:
+    git:
+      url: git@github.com:audaudio/aud_dsp_sampler.git
+      tag_pattern: "{{version}}"
+    version: ^0.1.0
+  aud_midi_standard:
+    git:
+      url: https://github.com/audmidi/aud_midi_standard.git
+      tag_pattern: "{{version}}"
+    version: ^0.1.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_lints: ^6.0.0
@@ -18,17 +29,6 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-
-# The example runs against the sibling checkouts of the ticket.
-dependency_overrides:
-  aud_audio_core:
-    path: ../../aud_audio_core
-  aud_audio_graph:
-    path: ../../aud_audio_graph
-  aud_audio_io:
-    path: ../../aud_audio_io
-  aud_audio_web:
-    path: ../../aud_audio_web
 
 flutter:
   uses-material-design: true

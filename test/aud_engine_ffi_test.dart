@@ -275,6 +275,20 @@ void main() {
         }
       });
 
+      test('a budget the graph refuses releases the session and graph', () {
+        final platform = _Platform();
+        expect(
+          () =>
+              AudEngineFfi(config: const _NegativeBudget(), platform: platform),
+          throwsA(
+            isA<ArgumentError>()
+                .having((e) => e.name, 'name', 'bytes')
+                .having((e) => e.invalidValue, 'invalidValue', -1),
+          ),
+        );
+        expect(platform.session?.isDisposed, isTrue);
+      });
+
       test('pump() takes the notifications without listening', () async {
         final engine = AudEngineFfi(
           config: const AudEngineConfig(
@@ -464,7 +478,69 @@ void main() {
       test('numbers before any block', () {
         final engine = open();
         expect(engine.numbers.renderTimeMeanNs, 0);
+        expect(engine.numbers.loadsRunning, 0);
+        expect(engine.numbers.loadTimeMaxNs, 0);
         expect(engine.route, AudIoRoute.virtual);
+      });
+
+      test('sets the cache budget of the process and reports the cache', () {
+        final before = AudGraphFfi(listen: false, maxFrames: 256);
+        final budget = before.cacheBudget;
+        before.dispose();
+        final engine = AudEngineFfi(
+          config: const AudEngineConfig(
+            backend: AudIoBackend.nullDevice,
+            outputChannels: 1,
+            maxFrames: 256,
+            manualClock: true,
+            cacheBudget: 64 << 20,
+          ),
+        );
+        addTearDown(() {
+          engine.graph.cacheBudget = budget;
+          engine.dispose();
+        });
+        expect(engine.graph.cacheBudget, 64 << 20);
+        final numbers = engine.numbers;
+        final usage = engine.graph.cacheUsage;
+        expect(
+          (numbers.cacheBytes, numbers.cacheBudget, numbers.cacheTrimmed),
+          (usage.bytes, 64 << 20, usage.trimmed),
+        );
+        expect(engine.report(), contains('cacheBudget: ${64 << 20}'));
+      });
+
+      test('loadNumbers() counts the loads that run, failed and took long', () {
+        AudLoad load(int result, {bool cancelled = false, int endNs = 0}) =>
+            AudLoad(
+              id: 1,
+              node: 1,
+              name: 'a.sfz',
+              result: result,
+              progress: 1,
+              message: '',
+              cancelled: cancelled,
+              startNs: 1000,
+              endNs: endNs,
+            );
+        expect(AudEngineFfi.loadNumbers(const []), (
+          running: 0,
+          failed: 0,
+          timeMaxNs: 0,
+        ));
+        expect(
+          AudEngineFfi.loadNumbers([
+            load(AUD_PENDING),
+            load(AUD_OK, endNs: 5000),
+            load(AUD_ERROR_FAILED, endNs: 3000),
+            // Asked to stop, but it failed before the node looked.
+            load(AUD_ERROR_FAILED, cancelled: true, endNs: 4000),
+            // Cancelled: asked to stop, or replaced by a newer load.
+            load(AUD_ERROR_CANCELLED, cancelled: true, endNs: 9000),
+            load(AUD_ERROR_CANCELLED, endNs: 2000),
+          ]),
+          (running: 1, failed: 2, timeMaxNs: 8000),
+        );
       });
     });
   });
@@ -475,6 +551,30 @@ class _WebPackage implements AudNodePackage {
 
   @override
   String get name => 'web_only';
+}
+
+// A configuration whose budget the graph refuses; its constructor asserts
+// the budget, so only a release build would let it through.
+class _NegativeBudget extends AudEngineConfig {
+  const _NegativeBudget()
+    : super(
+        backend: AudIoBackend.nullDevice,
+        outputChannels: 1,
+        manualClock: true,
+      );
+
+  @override
+  int? get cacheBudget => -1;
+}
+
+// Keeps the session the engine opens.
+class _Platform extends AudIoPlatform {
+  _Platform() : super.native();
+
+  AudIoSession? session;
+
+  @override
+  void attach(AudIoSession session) => this.session = session;
 }
 
 Future<void> _waitFor(bool Function() condition) async {
