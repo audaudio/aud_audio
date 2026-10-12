@@ -9,8 +9,6 @@ dependency_overrides:
     path: ../../aud_audio_io
   aud_audio_web:
     path: ../../aud_audio_web
-  aud_dsp_sampler:
-    path: ../../aud_dsp_sampler
   aud_audio_midi:
     path: ../../aud_audio_midi
   aud_midi:

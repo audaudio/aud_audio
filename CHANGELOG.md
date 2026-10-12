@@ -48,6 +48,8 @@
 
 - Add review fixes of ticket 26
 
+- Add independent constraints on the aud_midi packages
+
 ## 0.3.0 - 2026-10-12
 
 ### Added

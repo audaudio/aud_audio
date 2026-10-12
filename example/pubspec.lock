@@ -62,9 +62,11 @@ packages:
   aud_dsp_sampler:
     dependency: "direct main"
     description:
-      path: "../../aud_dsp_sampler"
-      relative: true
-    source: path
+      path: "."
+      resolved-ref: e29ee98587853544bb08f6e435183408997bdbf0
+      tag-pattern: "{{version}}"
+      url: "git@github.com:audaudio/aud_dsp_sampler.git"
+    source: git
     version: "0.2.0"
   aud_midi:
     dependency: "direct main"
