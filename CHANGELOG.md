@@ -7,8 +7,17 @@
 - Add engine extensions and the engine's timing
 
 - AudEngineExtension: the engine tells an extension when it started, stops, when its timing starts again and, before it disposes the graph, synchronously
+
 - AudEngine.timing: the graph's timing of the last block for the control side (midi-003)
+
 - The example resolves core and the sampler through their tags and asks for aud_dsp_sampler ^0.2.0
+
+- Add the MIDI keyboard page of the example
+
+- MidiPage: a MIDI port plays the sampler through aud_audio_midi, with a port picker, the activity, the timing and the input to output time
+- integration_test/midi_test.dart: a recorded performance through a source of the app, with warm-up and measured minutes; midi_paths_test.dart measures the native and the Dart paths (midi-002)
+- Android: the loopback device of aud_midi_android and the Bluetooth permissions; iOS: Bluetooth, local network and background audio
+- aud_midi_standard from pub.dev; the example runs against the ticket's checkouts
 
 ## 0.3.0 - 2026-10-12
 

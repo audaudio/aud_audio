@@ -25,13 +25,11 @@ packages:
     source: path
     version: "0.3.0"
   aud_audio_core:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      path: "."
-      resolved-ref: "9f388f7baa937f3fb2ccc17b1950754bb185e335"
-      tag-pattern: "{{version}}"
-      url: "git@github.com:audaudio/aud_audio_core.git"
-    source: git
+      path: "../../aud_audio_core"
+      relative: true
+    source: path
     version: "0.5.0"
   aud_audio_graph:
     dependency: "direct overridden"
@@ -47,6 +45,13 @@ packages:
       relative: true
     source: path
     version: "0.3.1"
+  aud_audio_midi:
+    dependency: "direct main"
+    description:
+      path: "../../aud_audio_midi"
+      relative: true
+    source: path
+    version: "0.0.2"
   aud_audio_web:
     dependency: "direct overridden"
     description:
@@ -57,21 +62,88 @@ packages:
   aud_dsp_sampler:
     dependency: "direct main"
     description:
-      path: "."
-      resolved-ref: e29ee98587853544bb08f6e435183408997bdbf0
-      tag-pattern: "{{version}}"
-      url: "git@github.com:audaudio/aud_dsp_sampler.git"
-    source: git
+      path: "../../aud_dsp_sampler"
+      relative: true
+    source: path
     version: "0.2.0"
+  aud_midi:
+    dependency: "direct main"
+    description:
+      path: "../../aud_midi"
+      relative: true
+    source: path
+    version: "0.1.0"
+  aud_midi_android:
+    dependency: "direct overridden"
+    description:
+      path: "../../aud_midi_android"
+      relative: true
+    source: path
+    version: "0.1.0"
+  aud_midi_apple:
+    dependency: "direct overridden"
+    description:
+      path: "../../aud_midi_apple"
+      relative: true
+    source: path
+    version: "0.1.0"
+  aud_midi_core:
+    dependency: "direct overridden"
+    description:
+      path: "../../aud_midi_core"
+      relative: true
+    source: path
+    version: "0.1.0"
+  aud_midi_linux:
+    dependency: "direct overridden"
+    description:
+      path: "../../aud_midi_linux"
+      relative: true
+    source: path
+    version: "0.1.0"
+  aud_midi_network:
+    dependency: "direct overridden"
+    description:
+      path: "../../aud_midi_network"
+      relative: true
+    source: path
+    version: "0.1.0"
+  aud_midi_rtp:
+    dependency: "direct overridden"
+    description:
+      path: "../../aud_midi_rtp"
+      relative: true
+    source: path
+    version: "0.1.0"
   aud_midi_standard:
     dependency: "direct main"
     description:
-      path: "."
-      resolved-ref: b45c6aa1cd74b7074be43ba0ff34fb939eec417d
-      tag-pattern: "{{version}}"
-      url: "https://github.com/audmidi/aud_midi_standard.git"
-    source: git
+      path: "../../aud_midi_standard"
+      relative: true
+    source: path
     version: "0.1.0"
+  aud_midi_web:
+    dependency: "direct overridden"
+    description:
+      path: "../../aud_midi_web"
+      relative: true
+    source: path
+    version: "0.1.0"
+  aud_midi_windows:
+    dependency: "direct overridden"
+    description:
+      path: "../../aud_midi_windows"
+      relative: true
+    source: path
+    version: "0.1.0"
+  bluez:
+    dependency: transitive
+    description:
+      name: bluez
+      sha256: "61a7204381925896a374301498f2f5399e59827c6498ae1e924aaa598751b545"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.3"
   boolean_selector:
     dependency: transitive
     description:
@@ -120,6 +192,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      sha256: a48d5da28e89bd02196e80d81ed8d7954923d00a0f4a68cc20b575038f023383
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.15"
   fake_async:
     dependency: transitive
     description:
@@ -129,13 +209,21 @@ packages:
     source: hosted
     version: "1.3.3"
   ffi:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: ffi
       sha256: "6d7fd89431262d8f3125e81b50d3847a091d846eafcd4fdb88dd06f36d705a45"
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  ffi_leak_tracker:
+    dependency: transitive
+    description:
+      name: ffi_leak_tracker
+      sha256: "4093d4ef9ca06ffe2786e73bfb25e22aa92112b9bb4ec941f11e3e6b61489a97"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   file:
     dependency: transitive
     description:
@@ -281,6 +369,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.0"
+  multicast_dns:
+    dependency: transitive
+    description:
+      name: multicast_dns
+      sha256: "134668a9605c747322d8c3eb0e89a4c0cbdedb29f8d2d5ae29d14daef724987b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.3+1"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -361,6 +457,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
+  petitparser:
+    dependency: transitive
+    description:
+      name: petitparser
+      sha256: "2f1564aadb14215e478563b5406cb80729d022158c01dc50c96013c2f7eb4790"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.1.0"
   platform:
     dependency: transitive
     description:
@@ -502,6 +606,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
+  win32:
+    dependency: transitive
+    description:
+      name: win32
+      sha256: a0b93865d5644f11cf6a8c3f6db909f1ec168958b5805f6cc684adea957cd63d
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.4.0"
   xdg_directories:
     dependency: transitive
     description:
@@ -510,6 +622,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      sha256: "0fe8cc98946def31cbcbc8734aa4067031e6f65ea3a78a508060bfed2200bfeb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.1.0"
   yaml:
     dependency: transitive
     description:
@@ -519,5 +639,5 @@ packages:
     source: hosted
     version: "3.1.4"
 sdks:
-  dart: ">=3.12.2 <4.0.0"
+  dart: ">=3.13.0 <4.0.0"
   flutter: ">=3.38.4"

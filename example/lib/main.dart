@@ -8,12 +8,14 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:aud_audio/aud_audio_ffi.dart';
+import 'package:aud_audio_midi/aud_audio_midi_ffi.dart';
 import 'package:aud_dsp_sampler/aud_dsp_sampler_ffi.dart';
 import 'package:aud_dsp_sampler/testing.dart';
 import 'package:flutter/material.dart';
 
 import 'engine_panel.dart';
 import 'instruments.dart';
+import 'midi_page.dart';
 import 'sampler_page.dart';
 
 void main() => runApp(const EngineApp());
@@ -43,6 +45,7 @@ class EngineAppState extends State<EngineApp> {
     config: widget.config,
     packages: [
       AudNativeNodePackage(AudDspSampler.name, AudDspSampler.register),
+      AudMidiBridge.package,
     ],
   );
 
@@ -50,7 +53,8 @@ class EngineAppState extends State<EngineApp> {
   /// for the first time.
   late final Future<AudSfzTestInstrument> instrument = Instruments.write();
 
-  /// The page on screen: 0 the oscillator, 1 the sampler.
+  /// The page on screen: 0 the oscillator, 1 the sampler, 2 the MIDI
+  /// keyboard (ticket 26).
   int page = 0;
 
   @override
@@ -68,13 +72,19 @@ class EngineAppState extends State<EngineApp> {
     theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
     home: Scaffold(
       appBar: AppBar(
-        title: Text(page == 0 ? 'aud_audio engine' : 'aud_audio sampler'),
+        title: Text(switch (page) {
+          0 => 'aud_audio engine',
+          1 => 'aud_audio sampler',
+          _ => 'aud_audio MIDI keyboard',
+        }),
       ),
       // Only the page on screen is built: it creates its nodes and removes
       // them when it goes.
-      body: page == 0
-          ? EnginePage(engine: engine)
-          : SamplerPage(engine: engine, instrument: instrument),
+      body: switch (page) {
+        0 => EnginePage(engine: engine),
+        1 => SamplerPage(engine: engine, instrument: instrument),
+        _ => MidiPage(engine: engine, instrument: instrument),
+      },
       bottomNavigationBar: NavigationBar(
         selectedIndex: page,
         onDestinationSelected: showPage,
@@ -88,6 +98,11 @@ class EngineAppState extends State<EngineApp> {
             key: Key('page-sampler'),
             icon: Icon(Icons.piano),
             label: 'Sampler',
+          ),
+          NavigationDestination(
+            key: Key('page-midi'),
+            icon: Icon(Icons.cable),
+            label: 'MIDI',
           ),
         ],
       ),
