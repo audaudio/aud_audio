@@ -50,6 +50,12 @@
 
 - Add independent constraints on the aud_midi packages
 
+- Add review fixes of ticket 26
+
+- dispose() stops a running engine first, so the extensions hear engineStopping before engineDisposing
+- One helper tells the extensions that the engine started, stops or changed its timing
+- Example: Bluetooth MIDI on Android needs the permissions to scan and to connect, or the location below Android 12
+
 ## 0.3.0 - 2026-10-12
 
 ### Added
