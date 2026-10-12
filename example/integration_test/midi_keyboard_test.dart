@@ -17,7 +17,8 @@
 //    time from the port's removal to silence (no note left on; it includes
 //    the release of the instrument); the cable back in - the time from the
 //    port's return to the input playing again (budget 500 ms), on Android
-//    under a new id, found by its fingerprint.
+//    under a new id, found by its fingerprint. AUD_HOT_PLUG=false skips it,
+//    AUD_PLAY_SECONDS=0 the playing.
 // 4. With AUD_BLUETOOTH=true: a Bluetooth LE MIDI device connected with the
 //    page's Bluetooth button and played for AUD_BLUETOOTH_SECONDS.
 
@@ -37,13 +38,18 @@ import 'midi_support.dart';
 const _port = String.fromEnvironment('AUD_MIDI_PORT');
 const _playSeconds = int.fromEnvironment('AUD_PLAY_SECONDS', defaultValue: 600);
 const _bluetooth = bool.fromEnvironment('AUD_BLUETOOTH');
+const _hotPlug = bool.fromEnvironment('AUD_HOT_PLUG', defaultValue: true);
 const _bluetoothSeconds = int.fromEnvironment(
   'AUD_BLUETOOTH_SECONDS',
   defaultValue: 60,
 );
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  // The person taps the page (the Bluetooth button): the binding hands
+  // the device's touches to the app instead of only listing finders.
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized()
+          .shouldPropagateDevicePointerEvents =
+      true;
 
   Future<void> until(
     WidgetTester tester,
@@ -122,84 +128,97 @@ void main() {
     final midi = page.midi!;
     final report = <String, Object?>{};
 
-    // 1. The keyboard.
-    page.prompt = 'Connect the MIDI keyboard';
-    await until(tester, () => bridge.inputPorts.any(isKeyboard));
-    final keyboard = bridge.inputPorts.firstWhere(isKeyboard);
-    await tester.runAsync(() => page.pick(keyboard));
-    await tester.pump();
-    expect(page.input, isNotNull, reason: page.error);
-    final input = page.input!;
+    // 1. The keyboard; a run of Bluetooth alone starts the engine only.
+    MidiPortInfo? keyboard;
+    if (_playSeconds > 0 || _hotPlug) {
+      page.prompt = 'Connect the MIDI keyboard';
+      await until(tester, () => bridge.inputPorts.any(isKeyboard));
+      final picked = bridge.inputPorts.firstWhere(isKeyboard);
+      keyboard = picked;
+      await tester.runAsync(() => page.pick(picked));
+      await tester.pump();
+      expect(page.input, isNotNull, reason: page.error);
+    }
     engine.start();
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 500)),
     );
 
     // 2. Playing.
-    report['playing'] = await playing(
-      tester,
-      page,
-      'Play ${keyboard.name} for ${_playSeconds ~/ 60} minutes: chords, '
-      'the sustain pedal, fast repeats',
-      _playSeconds,
-    );
-    print('MIDI keyboard report (playing): ${jsonEncode(report['playing'])}');
-
-    // 3. Hot-plug: the times of the port's events, as Dart sees them.
-    final events = <(MidiPortEvent, DateTime)>[];
-    final changes = midi.changes.listen((e) => events.add((e, DateTime.now())));
-    page.prompt =
-        'Hold a chord with the sustain pedal down, then pull the cable of '
-        '${keyboard.name}';
-    await until(tester, () => input.isWaiting);
-    final gone = events.lastWhere(
-      (e) => e.$1.port.fingerprint == keyboard.fingerprint,
-    );
-    // Silence: the output's peak stays below -80 dB for half a second.
-    var silentSince = DateTime.now();
-    DateTime? silent;
-    while (silent == null) {
-      engine.graph.resetStats();
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    if (_playSeconds > 0) {
+      report['playing'] = await playing(
+        tester,
+        page,
+        'Play ${keyboard!.name} for ${_playSeconds ~/ 60} minutes: chords, '
+        'the sustain pedal, fast repeats',
+        _playSeconds,
       );
-      await tester.pump();
-      final now = DateTime.now();
-      if (engine.stats.outputPeak > 1e-4) {
-        silentSince = now;
-      } else if (now.difference(silentSince).inMilliseconds >= 500) {
-        silent = silentSince;
-      }
-      if (now.difference(gone.$2).inSeconds > 20) fail('A note stays on');
+      print('MIDI keyboard report (playing): ${jsonEncode(report['playing'])}');
     }
-    page.prompt = 'Plug ${keyboard.name} in again';
-    await until(tester, () => !input.isWaiting);
-    final bound = DateTime.now();
-    final back = events.lastWhere(
-      (e) =>
-          e.$1.port.fingerprint == keyboard.fingerprint &&
-          e.$1.port.state == MidiPortState.connected &&
-          e.$1 is! MidiPortRemoved,
-    );
-    final delivered = input.source.stats.delivered;
-    page.prompt = 'Play a key';
-    await until(tester, () => input.source.stats.delivered > delivered);
-    final played = DateTime.now();
-    await changes.cancel();
-    report['hotPlug'] = {
-      'event': gone.$1.runtimeType.toString(),
-      'silentAfterMs': silent.difference(gone.$2).inMilliseconds,
-      'boundAfterMs': bound.difference(back.$2).inMilliseconds,
-      'firstEventAfterMs': played.difference(back.$2).inMilliseconds,
-      'sameId': input.port.id == keyboard.id,
-      'releases': input.source.stats.releases,
-    };
-    print('MIDI keyboard report (hot-plug): ${jsonEncode(report['hotPlug'])}');
-    expect(
-      bound.difference(back.$2).inMilliseconds,
-      lessThanOrEqualTo(500),
-      reason: 'the input plays again within 500 ms of the port',
-    );
+
+    if (_hotPlug) {
+      final input = page.input!;
+      final port = keyboard!;
+      // 3. Hot-plug: the times of the port's events, as Dart sees them.
+      final events = <(MidiPortEvent, DateTime)>[];
+      final changes = midi.changes.listen(
+        (e) => events.add((e, DateTime.now())),
+      );
+      page.prompt =
+          'Hold a chord with the sustain pedal down, then pull the cable of '
+          '${port.name}';
+      await until(tester, () => input.isWaiting);
+      final gone = events.lastWhere(
+        (e) => e.$1.port.fingerprint == port.fingerprint,
+      );
+      // Silence: the output's peak stays below -80 dB for half a second.
+      var silentSince = DateTime.now();
+      DateTime? silent;
+      while (silent == null) {
+        engine.graph.resetStats();
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+        await tester.pump();
+        final now = DateTime.now();
+        if (engine.stats.outputPeak > 1e-4) {
+          silentSince = now;
+        } else if (now.difference(silentSince).inMilliseconds >= 500) {
+          silent = silentSince;
+        }
+        if (now.difference(gone.$2).inSeconds > 20) fail('A note stays on');
+      }
+      page.prompt = 'Plug ${port.name} in again';
+      await until(tester, () => !input.isWaiting);
+      final bound = DateTime.now();
+      final back = events.lastWhere(
+        (e) =>
+            e.$1.port.fingerprint == port.fingerprint &&
+            e.$1.port.state == MidiPortState.connected &&
+            e.$1 is! MidiPortRemoved,
+      );
+      final delivered = input.source.stats.delivered;
+      page.prompt = 'Play a key';
+      await until(tester, () => input.source.stats.delivered > delivered);
+      final played = DateTime.now();
+      await changes.cancel();
+      report['hotPlug'] = {
+        'event': gone.$1.runtimeType.toString(),
+        'silentAfterMs': silent.difference(gone.$2).inMilliseconds,
+        'boundAfterMs': bound.difference(back.$2).inMilliseconds,
+        'firstEventAfterMs': played.difference(back.$2).inMilliseconds,
+        'sameId': input.port.id == port.id,
+        'releases': input.source.stats.releases,
+      };
+      print(
+        'MIDI keyboard report (hot-plug): ${jsonEncode(report['hotPlug'])}',
+      );
+      expect(
+        bound.difference(back.$2).inMilliseconds,
+        lessThanOrEqualTo(500),
+        reason: 'the input plays again within 500 ms of the port',
+      );
+    }
 
     // 4. Bluetooth.
     if (_bluetooth) {

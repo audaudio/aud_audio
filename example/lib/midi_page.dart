@@ -11,7 +11,9 @@ import 'package:aud_audio_midi/aud_audio_midi_ffi.dart';
 import 'package:aud_dsp_sampler/aud_dsp_sampler_ffi.dart';
 import 'package:aud_dsp_sampler/testing.dart';
 import 'package:aud_midi/aud_midi.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'engine_panel.dart';
 import 'instruments.dart';
@@ -138,26 +140,59 @@ class MidiPageState extends State<MidiPage>
     _rebuild();
   }
 
-  /// Scans for Bluetooth LE MIDI devices and connects the one the user
-  /// picks; its ports then appear in the port picker.
+  /// Connects a Bluetooth LE MIDI device; its ports then appear in the
+  /// port picker. iOS shows its own device picker, which also handles the
+  /// pairing; elsewhere the app scans and connects the device the user
+  /// picks.
   Future<void> connectBluetooth() async {
     final bluetooth = midi?.bluetooth;
     if (bluetooth == null) {
       setState(() => _error = 'No Bluetooth MIDI on this platform');
       return;
     }
+    if (defaultTargetPlatform == TargetPlatform.android &&
+        !await _bluetoothPermitted()) {
+      setState(() => _error = 'Bluetooth MIDI needs the permission to scan');
+      return;
+    }
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      try {
+        await bluetooth.showSystemDevicePicker();
+        _error = null;
+      } on Object catch (e) {
+        _error = '$e';
+      }
+      _rebuild();
+      return;
+    }
+    if (!mounted) return;
     final picked = await showDialog<MidiBlePeripheralInfo>(
       context: context,
       builder: (context) => _BluetoothDialog(bluetooth: bluetooth),
     );
     if (picked == null) return;
     try {
-      await bluetooth.connect(picked.id);
+      // The first connection of a device waits for the pairing request of
+      // the operating system; aud_midi's default of 10 s is too short.
+      await bluetooth.connect(picked.id, timeout: const Duration(seconds: 30));
       _error = null;
     } on Object catch (e) {
       _error = '$e';
     }
     _rebuild();
+  }
+
+  // Asks Android for what a BLE scan needs: the nearby devices (Android
+  // 12 and later) or the location (before).
+  static Future<bool> _bluetoothPermitted() async {
+    final statuses = await [
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.locationWhenInUse,
+    ].request();
+    final scan = statuses[Permission.bluetoothScan]!;
+    final location = statuses[Permission.locationWhenInUse]!;
+    return scan.isGranted || location.isGranted;
   }
 
   /// Switches the timing of the input between fixed and immediate.

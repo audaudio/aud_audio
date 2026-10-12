@@ -25,6 +25,7 @@ dependencies:
   ffi: ^2.2.0
   aud_midi_standard: ^0.1.0
   path_provider: ^2.1.5
+  permission_handler: ^13.0.2
 
 dev_dependencies:
   flutter_lints: ^6.0.0

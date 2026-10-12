@@ -25,8 +25,16 @@
 - Add the guided keyboard test and the path measurement
 
 - integration_test/midi_keyboard_test.dart: a person plays a keyboard, then the hot-plug with a held chord and Bluetooth MIDI, guided by prompts on the page
+
 - midi_paths_test.dart measures the native and the Dart paths with sources of its own at one C
+
 - The MIDI page: a Bluetooth MIDI dialog, a prompt banner, C and m of the input
+
+- Add Bluetooth and permissions to the MIDI page
+
+- The page uses Apple's picker on iOS and asks Android for the Bluetooth scan permission
+- The guided keyboard test forwards touches and can skip its phases
+- README for extensions, timing and the MIDI page
 
 ## 0.3.0 - 2026-10-12
 

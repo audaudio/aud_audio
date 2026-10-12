@@ -10,7 +10,8 @@
   "domain": [
     "The Audanika Audio Engine",
     "The sample cache budget of the process and the numbers of the engine: render time, xruns, command to sound, cache and loads",
-    "The example app: oscillator page and SFZ sampler page with a keyboard, integration tests that measure the M1 budgets"
+    "Engine extensions that live with the engine and close before its graph, and the engine's timing for the control side (ticket 26)",
+    "The example app: oscillator page, SFZ sampler page with a keyboard and the MIDI keyboard page with aud_audio_midi, integration tests that measure the M1 budgets and the MIDI paths"
   ],
   "interfaces": {
     "uses": {
