@@ -15,7 +15,7 @@ dependencies:
     git:
       url: git@github.com:audaudio/aud_dsp_sampler.git
       tag_pattern: "{{version}}"
-    version: ^0.1.0
+    version: ^0.2.0
   aud_midi_standard:
     git:
       url: https://github.com/audmidi/aud_midi_standard.git

@@ -23,13 +23,15 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.2.0"
+    version: "0.3.0"
   aud_audio_core:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "../../aud_audio_core"
-      relative: true
-    source: path
+      path: "."
+      resolved-ref: "9f388f7baa937f3fb2ccc17b1950754bb185e335"
+      tag-pattern: "{{version}}"
+      url: "git@github.com:audaudio/aud_audio_core.git"
+    source: git
     version: "0.5.0"
   aud_audio_graph:
     dependency: "direct overridden"
@@ -55,10 +57,12 @@ packages:
   aud_dsp_sampler:
     dependency: "direct main"
     description:
-      path: "../../aud_dsp_sampler"
-      relative: true
-    source: path
-    version: "0.1.0"
+      path: "."
+      resolved-ref: e29ee98587853544bb08f6e435183408997bdbf0
+      tag-pattern: "{{version}}"
+      url: "git@github.com:audaudio/aud_dsp_sampler.git"
+    source: git
+    version: "0.2.0"
   aud_midi_standard:
     dependency: "direct main"
     description:

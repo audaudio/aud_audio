@@ -14,6 +14,7 @@ import 'package:aud_audio_io/aud_audio_io_ffi.dart';
 
 import 'aud_engine.dart';
 import 'aud_engine_config.dart';
+import 'aud_engine_extension.dart';
 import 'aud_engine_numbers.dart';
 import 'aud_engine_state.dart';
 import 'aud_native_node_package.dart';
@@ -62,6 +63,7 @@ class AudEngineFfi implements AudEngine {
     }
     graph = created;
     _subscription = stream.notifications.listen(_onNotification);
+    _graphSubscription = created.notifications.listen(_onGraphNotification);
   }
 
   /// The render function of the graph as the stream calls it.
@@ -102,11 +104,17 @@ class AudEngineFfi implements AudEngine {
   AudGraphStats get stats => graph.stats;
 
   @override
+  AudGraphTiming get timing => graph.timing;
+
+  @override
   List<AudNodeDescriptor> get nodeTypes => graph.nodeTypes;
 
   @override
   List<AudPackageRegistration> get registrations =>
       List.unmodifiable(_registrations);
+
+  @override
+  List<AudEngineExtension> get extensions => List.unmodifiable(_extensions);
 
   @override
   AudEngineNumbers get numbers {
@@ -165,6 +173,20 @@ class AudEngineFfi implements AudEngine {
 
   // ...........................................................................
   @override
+  void addExtension(AudEngineExtension extension) {
+    _checkNotDisposed();
+    if (_extensions.contains(extension)) {
+      throw StateError('The extension ${extension.name} was added before');
+    }
+    _extensions.add(extension);
+  }
+
+  @override
+  void removeExtension(AudEngineExtension extension) =>
+      _extensions.remove(extension);
+
+  // ...........................................................................
+  @override
   void prepare() {
     _checkNotDisposed();
     if (_state != AudEngineState.created && _state != AudEngineState.stopped) {
@@ -193,6 +215,9 @@ class AudEngineFfi implements AudEngine {
     graph.start();
     stream.start();
     _enter(AudEngineState.running);
+    for (final extension in List.of(_extensions)) {
+      extension.engineStarted(this);
+    }
   }
 
   @override
@@ -202,21 +227,41 @@ class AudEngineFfi implements AudEngine {
         _state != AudEngineState.suspended) {
       return;
     }
+    for (final extension in List.of(_extensions)) {
+      extension.engineStopping(this);
+    }
     stream.stop();
     graph.stop();
     _enter(AudEngineState.stopped);
   }
 
+  /// Tells the extensions first, newest first: they stop what feeds the
+  /// graph from other threads before its memory goes. An extension that
+  /// throws does not keep the engine from releasing the stream, the graph
+  /// and the session; the first error is thrown afterwards.
   @override
   void dispose() {
     if (_state == AudEngineState.disposed) return;
+    Object? error;
+    StackTrace? trace;
+    for (final extension in _extensions.reversed.toList()) {
+      try {
+        extension.engineDisposing(this);
+      } catch (e, s) {
+        error ??= e;
+        trace ??= s;
+      }
+    }
+    _extensions.clear();
     stop();
     unawaited(_subscription.cancel());
+    unawaited(_graphSubscription.cancel());
     stream.close();
     graph.dispose();
     session.dispose();
     _enter(AudEngineState.disposed);
     unawaited(_states.close());
+    if (error != null) Error.throwWithStackTrace(error, trace!);
   }
 
   @override
@@ -289,6 +334,8 @@ class AudEngineFfi implements AudEngine {
   final StreamController<AudEngineState> _states =
       StreamController<AudEngineState>.broadcast();
   late final StreamSubscription<AudIoNotification> _subscription;
+  late final StreamSubscription<AudGraphNotification> _graphSubscription;
+  final List<AudEngineExtension> _extensions = [];
   AudEngineState _state = AudEngineState.created;
   AudIoRoute? _route;
   int _acknowledged = 1;
@@ -335,6 +382,22 @@ class AudEngineFfi implements AudEngine {
     }
   }
 
+  void _onGraphNotification(AudGraphNotification notification) {
+    if (notification is AudTimeResetNotification) _timingChanged();
+  }
+
+  /// Tells the extensions that the timing starts again. They hear it from a
+  /// notification, so an error goes to the zone instead of the caller.
+  void _timingChanged() {
+    for (final extension in List.of(_extensions)) {
+      try {
+        extension.engineTimingChanged(this);
+      } catch (e, s) {
+        Zone.current.handleUncaughtError(e, s);
+      }
+    }
+  }
+
   void _suspend() {
     if (_state != AudEngineState.running) return;
     graph.suspend();
@@ -366,7 +429,10 @@ class AudEngineFfi implements AudEngine {
       // Stopped or created: the next prepare acknowledges the format.
       return;
     }
-    if (held) _acknowledge(format);
+    if (held) {
+      _acknowledge(format);
+      _timingChanged();
+    }
   }
 
   void _acknowledge(AudIoStreamFormat format) {

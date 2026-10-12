@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Add engine extensions and the engine's timing
+
+- AudEngineExtension: the engine tells an extension when it started, stops, when its timing starts again and, before it disposes the graph, synchronously
+- AudEngine.timing: the graph's timing of the last block for the control side (midi-003)
+- The example resolves core and the sampler through their tags and asks for aud_dsp_sampler ^0.2.0
+
 ## 0.3.0 - 2026-10-12
 
 ### Added
@@ -63,6 +73,7 @@
 - README.md, README.de.md and example/README.md show the measuring command of sampler_test.dart with AUD_WARMUP_SECONDS
 
 - example/README.md describes both pages and both integration tests
+
 
 ## 0.2.0 - 2026-10-09
 

@@ -1,13 +1,10 @@
 # The example runs against the sibling checkouts of the ticket, so that it
-# sees the unreleased versions of the family (tickets 22 and 25).
+# sees the unreleased versions of the family (tickets 22, 25 and 26). Core
+# and the sampler are not part of ticket 26 and resolve through their tags.
 dependency_overrides:
-  aud_audio_core:
-    path: ../../aud_audio_core
   aud_audio_graph:
     path: ../../aud_audio_graph
   aud_audio_io:
     path: ../../aud_audio_io
   aud_audio_web:
     path: ../../aud_audio_web
-  aud_dsp_sampler:
-    path: ../../aud_dsp_sampler
