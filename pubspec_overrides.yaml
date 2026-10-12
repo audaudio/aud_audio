@@ -4,9 +4,13 @@
 # change-refs-to-git-feature-branch and change-refs-to-pub-dev
 # remove it again.
 dependency_overrides:
+  aud_audio_core:
+    path: ../aud_audio_core
   aud_audio_graph:
     path: ../aud_audio_graph
   aud_audio_io:
     path: ../aud_audio_io
   aud_audio_web:
     path: ../aud_audio_web
+  aud_midi_standard:
+    path: ../aud_midi_standard
