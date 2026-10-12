@@ -42,6 +42,10 @@
 
 - Version 13 needs Android SDK platform 37
 
+- Add aud_midi_standard from pub.dev to the example
+
+- The example resolves aud_midi_standard from pub.dev instead of a sibling checkout
+
 ## 0.3.0 - 2026-10-12
 
 ### Added

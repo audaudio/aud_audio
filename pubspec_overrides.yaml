@@ -12,5 +12,3 @@ dependency_overrides:
     path: ../aud_audio_io
   aud_audio_web:
     path: ../aud_audio_web
-  aud_midi_standard:
-    path: ../aud_midi_standard
