@@ -1,31 +1,7 @@
-# The example runs against the sibling checkouts of the ticket, so that it
-# sees the unreleased versions of the family (tickets 22, 25 and 26).
+# The example plays the package of this checkout and resolves the rest of
+# the family from its git tags and pub.dev, like an app does. A ticket that
+# changes a sibling as well adds its checkout here as a path override while
+# it runs; overrides of checkouts a ticket does not have break pub get.
 dependency_overrides:
-  aud_audio_core:
-    path: ../../aud_audio_core
-  aud_audio_graph:
-    path: ../../aud_audio_graph
-  aud_audio_io:
-    path: ../../aud_audio_io
-  aud_audio_web:
-    path: ../../aud_audio_web
-  aud_audio_midi:
-    path: ../../aud_audio_midi
-  aud_midi:
-    path: ../../aud_midi
-  aud_midi_core:
-    path: ../../aud_midi_core
-  aud_midi_apple:
-    path: ../../aud_midi_apple
-  aud_midi_android:
-    path: ../../aud_midi_android
-  aud_midi_linux:
-    path: ../../aud_midi_linux
-  aud_midi_network:
-    path: ../../aud_midi_network
-  aud_midi_web:
-    path: ../../aud_midi_web
-  aud_midi_windows:
-    path: ../../aud_midi_windows
   aud_audio:
     path: ..

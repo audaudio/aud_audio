@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Add an example that resolves outside a full ticket
+- The example overrides only aud_audio; the family comes from its git tags and pub.dev
+- The example depends on aud_audio_midi ^0.1.0
+
 ## 0.4.0 - 2026-10-12
 
 ### Added
@@ -57,6 +65,7 @@
 - One helper tells the extensions that the engine started, stops or changed its timing
 
 - Example: Bluetooth MIDI on Android needs the permissions to scan and to connect, or the location below Android 12
+
 
 ## 0.3.0 - 2026-10-12
 
@@ -121,6 +130,7 @@
 - README.md, README.de.md and example/README.md show the measuring command of sampler_test.dart with AUD_WARMUP_SECONDS
 
 - example/README.md describes both pages and both integration tests
+
 
 ## 0.2.0 - 2026-10-09
 
