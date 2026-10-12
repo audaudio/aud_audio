@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 - 2026-10-12
 
 ### Added
 
@@ -59,7 +59,9 @@
 - Add the German README sections and the warm-up command
 
 - README.de.md says what README.md says: the cache and load numbers, the cache budget through AudEngineConfig (lifecycle-002), the plan of ticket 25, the sampler in the code example and the two pages of the example
+
 - README.md, README.de.md and example/README.md show the measuring command of sampler_test.dart with AUD_WARMUP_SECONDS
+
 - example/README.md describes both pages and both integration tests
 
 ## 0.2.0 - 2026-10-09
