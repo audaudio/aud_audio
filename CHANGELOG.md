@@ -33,8 +33,14 @@
 - Add Bluetooth and permissions to the MIDI page
 
 - The page uses Apple's picker on iOS and asks Android for the Bluetooth scan permission
+
 - The guided keyboard test forwards touches and can skip its phases
+
 - README for extensions, timing and the MIDI page
+
+- Add permission_handler 12 to the example
+
+- Version 13 needs Android SDK platform 37
 
 ## 0.3.0 - 2026-10-12
 
