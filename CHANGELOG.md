@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.1 - 2026-10-13
+
+### Added
+
+- Add an example that resolves outside a full ticket
+- The example overrides only aud_audio; the family comes from its git tags and pub.dev
+- The example depends on aud_audio_midi ^0.1.0
+
 ## 0.4.0 - 2026-10-12
 
 ### Added
