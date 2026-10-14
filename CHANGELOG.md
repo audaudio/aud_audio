@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.4.2 - 2026-10-14
+
+### Added
+
+- Add a load governor and the class of the device
+
+- AudLoadGovernor: an engine extension that sets an AudLoadBudget every 100 ms from the mean render share of the last second and the xruns
+
+- AudLoadPolicy: down at once on an xrun or a mean share above 85 %, up by a unit below 72 % while the budget limits; a line through the shares over the units lowers to the units that keep the mean at 75 %
+
+- AudLoadBudget, AudLoadBudgetUsage, AudLoadGovernorConfig, AudLoadGovernorState and AudLoadSample, which replays recorded loads
+
+- AudDeviceClass: the model, the cores, their clocks, the SoC and the media performance class through the C library, and the start budget of a class
+
+- A simulation of the stress test on modeled devices, the Galaxy Tab S4 of the measurements among them
+
+- The governor in the READMEs and the index
+
+- Add a new start of the governor's counters after a pause
+
+- A tick that comes more than three periods late starts the counters again instead of one long period with the renders and xruns of the pause
+
+- The overloads of the state are those of the window, not a sum of periods that overlap
+
+- Add helix ^1.12.0 to the dev dependencies
+
+- Add the fixes of the review of the load governor
+
+- A governor whose engine went without telling it stops at its next tick
+
+- A timing change while the engine stands starts no clock; a reset of the stream's counters counts no xruns backwards
+
+- The sample of a period and the stolen units of the last minute in functions of their own; the clocks of the Android cores too
+
+- sysctlString keeps a terminator; the system properties of Android through one lookup of libc
+
+- The config names its broken assertion; AudLoadSample.fromJson after its constructor
+
+- The API of the governor and the inputs of the start budgets in the READMEs; the web fixture uses the governor
+
 ## 0.4.1 - 2026-10-13
 
 ### Added

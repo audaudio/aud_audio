@@ -13,6 +13,8 @@ import 'package:aud_audio/aud_audio.dart';
 void main() {
   print(const AudEngineConfig().streamConfig.direction);
   print(AudEngineState.created);
+  print(AudDeviceClass.current().startUnits);
+  print(const AudLoadGovernorConfig().toJson());
   try {
     AudEngine().dispose();
   } on UnsupportedError catch (e) {

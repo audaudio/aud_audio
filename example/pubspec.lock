@@ -23,52 +23,52 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.4.0"
+    version: "0.4.1"
   aud_audio_core:
     dependency: transitive
     description:
       path: "."
-      resolved-ref: "956780dfe4a864883ee06a944a8b3063b261a6f8"
+      resolved-ref: "9af9be960f1c5f8b2d5ece40a7768c17b0cde17b"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_core.git"
     source: git
-    version: "0.5.1"
+    version: "0.5.2"
   aud_audio_graph:
     dependency: transitive
     description:
       path: "."
-      resolved-ref: "28c43930245f81bb62431e839f85fc1446402a2f"
+      resolved-ref: "5922c18dc6c6f8e81fd6ecaf783fa629f5eaa601"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_graph.git"
     source: git
-    version: "0.5.1"
+    version: "0.5.2"
   aud_audio_io:
     dependency: transitive
     description:
       path: "."
-      resolved-ref: "94a5ff93f7b6eb6aba18ac1eb5bbc2b392136bab"
+      resolved-ref: cdbbc9cdc43aa701e5345ef1df16d94a80dc7c90
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_io.git"
     source: git
-    version: "0.3.2"
+    version: "0.3.3"
   aud_audio_midi:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "393ae56991d2b8560bf5938c522dcb871a2d052f"
+      resolved-ref: ac060f73d1ab048de582a69d16428a96cd7a1f70
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_midi.git"
     source: git
-    version: "0.1.0"
+    version: "0.1.2"
   aud_audio_web:
     dependency: transitive
     description:
       path: "."
-      resolved-ref: "6502cf3414e8fad23104953b060870f724b2f181"
+      resolved-ref: "2fb1c9a6afcc9bab74bbf4b8def2acfa288da9ce"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_web.git"
     source: git
-    version: "0.0.6"
+    version: "0.0.7"
   aud_dsp_sampler:
     dependency: "direct main"
     description:
@@ -82,10 +82,10 @@ packages:
     dependency: "direct main"
     description:
       name: aud_midi
-      sha256: dff1edd3a9d0920e13e70472d4af77e36ab925c4ebe3a45499d8f0bd38aeec88
+      sha256: "6d0db20045c685c488497391000b430631e2c64edb3543ea18d73380ce77afe7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.3"
   aud_midi_android:
     dependency: transitive
     description:
@@ -154,10 +154,10 @@ packages:
     dependency: transitive
     description:
       name: aud_midi_windows
-      sha256: "61fcc68ca5e55487cb24afd8670db35ff523bb44ed15fb88031f76fb7bbf9af4"
+      sha256: b85f6f2ff5efbbe9ec759b99c45f92e5a3bc90ffbe8b8575d34a75679c757c09
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   bluez:
     dependency: transitive
     description:

@@ -37,38 +37,38 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "956780dfe4a864883ee06a944a8b3063b261a6f8"
+      resolved-ref: "9af9be960f1c5f8b2d5ece40a7768c17b0cde17b"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_core.git"
     source: git
-    version: "0.5.1"
+    version: "0.5.2"
   aud_audio_graph:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "28c43930245f81bb62431e839f85fc1446402a2f"
+      resolved-ref: "5922c18dc6c6f8e81fd6ecaf783fa629f5eaa601"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_graph.git"
     source: git
-    version: "0.5.1"
+    version: "0.5.2"
   aud_audio_io:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "94a5ff93f7b6eb6aba18ac1eb5bbc2b392136bab"
+      resolved-ref: cdbbc9cdc43aa701e5345ef1df16d94a80dc7c90
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_io.git"
     source: git
-    version: "0.3.2"
+    version: "0.3.3"
   aud_audio_web:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "6502cf3414e8fad23104953b060870f724b2f181"
+      resolved-ref: "2fb1c9a6afcc9bab74bbf4b8def2acfa288da9ce"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_web.git"
     source: git
-    version: "0.0.6"
+    version: "0.0.7"
   aud_midi_standard:
     dependency: transitive
     description:
@@ -101,6 +101,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
+  cli_util:
+    dependency: transitive
+    description:
+      name: cli_util
+      sha256: "89b8801ba49f8b593fbf2d3e59efd0f566c46cd4ba6837ae2610c72b52a0f899"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   code_assets:
     dependency: transitive
     description:
@@ -137,10 +145,10 @@ packages:
     dependency: transitive
     description:
       name: coverage
-      sha256: "956a3de0725ca232ad353565a8290d3357592bf4250f6f298a185e2d949c5d3d"
+      sha256: ff89e37c19355194e279d26dafe8e4bece46c9ea63a30be4dc68214f5bc290d3
       url: "https://pub.dev"
     source: hosted
-    version: "1.15.1"
+    version: "1.16.0"
   crypto:
     dependency: transitive
     description:
@@ -326,10 +334,10 @@ packages:
     dependency: "direct dev"
     description:
       name: helix
-      sha256: cf433c4c14b6eaa167cf5521c9608c0065fe3005cf977f8c818e45c8b8b96e31
+      sha256: e7aa11c1238624f942cd8c1f596978c5ad8add2b3e783ebad6afb4826108482a
       url: "https://pub.dev"
     source: hosted
-    version: "1.11.0"
+    version: "1.12.0"
   hooks:
     dependency: transitive
     description:

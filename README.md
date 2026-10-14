@@ -100,6 +100,27 @@ print(engine.numbers.toJson());
 print(engine.report());
 ```
 
+A governor keeps a budget of voices within what the device renders in its
+block (ticket 29). The app binds the budget of a DSP package - the voice
+budget of the sampler nodes of `aud_dsp_sampler` - to `AudLoadBudget`:
+
+```dart
+final governor = AudLoadGovernor(
+  budget: samplerVoices, // an AudLoadBudget of the app
+  start: learnedBudget ?? AudDeviceClass.current().startUnits,
+);
+engine.addExtension(governor);
+engine.start();
+governor.states.listen((state) => print(state.budget));
+```
+
+`AudLoadGovernorConfig` sets the period, the window, the band (`upBelow`,
+`target`, `downAbove`), floor, ceiling, step, hold and settle time.
+`states` emits an `AudLoadGovernorState` with its `AudLoadAction` per
+period; `AudLoadBudget.usage` returns an `AudLoadBudgetUsage`;
+`AudDeviceClass.key` names the device for a learned budget, and
+`AudDeviceClass.fromProbe` reads an `AudDeviceProbe` (tests).
+
 `example/` has three pages on one engine: oscillator -> filter -> output
 with frequency and cutoff; the SFZ sampler of `aud_dsp_sampler` with
 instruments generated on the device, a multi-touch keyboard, sustain,
@@ -149,6 +170,25 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
 - `AudEngine.timing` is the graph's timing of the last block for the
   control side: the fitted output time, the reported output latency and
   the gaps between renders (midi-003).
+- `AudLoadGovernor` is an extension that looks at the load every 100 ms
+  on the control thread while the engine runs: the mean share of its
+  block the renders took over the last second (`AudGraph.renderLoad`),
+  the xruns of the stream and the units of its `AudLoadBudget`. Its
+  `AudLoadPolicy` lowers the budget at once on an xrun or a mean above
+  85 % and raises it by a unit per period only while the mean stays below
+  72 % and the budget limits. It fits a line through the mean shares over
+  the units in use of the last seconds and lowers the budget to the units
+  that keep the mean at 75 %, no deeper than the units in use scaled to
+  it. The mean, not the p99, tells when a stream drops out: on
+  the Galaxy Tab S4 the note-on bursts of the stress test make a few
+  renders long at any number of voices, and the device buffer absorbs
+  them (ticket 29). It starts from the budget the app learned on the
+  device or from `AudDeviceClass.startUnits`: the performance cores on
+  iOS, the media performance class and the clock of the fastest cores on
+  Android, 64 on a simulator or emulator, read from the system through
+  the C library.
+  The policy runs without timers, so recorded `AudLoadSample`s replay
+  through it.
 - Command-to-sound runs from the host time of an empty transaction to the
   presentation time of the first block that renders it: the graph reports
   the block's sample position, the stream's last `AudStreamTime` maps it

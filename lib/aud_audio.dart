@@ -17,9 +17,15 @@ export 'package:aud_audio_graph/aud_audio_graph.dart';
 export 'package:aud_audio_io/aud_audio_io.dart';
 
 export 'src/aud_audio_version.dart';
+export 'src/aud_device_class.dart';
 export 'src/aud_engine.dart';
 export 'src/aud_engine_config.dart';
 export 'src/aud_engine_extension.dart';
 export 'src/aud_engine_numbers.dart';
 export 'src/aud_engine_state.dart';
+export 'src/aud_load_budget.dart';
+export 'src/aud_load_governor.dart';
+export 'src/aud_load_governor_config.dart';
+export 'src/aud_load_governor_state.dart';
+export 'src/aud_load_policy.dart';
 export 'src/aud_node_package.dart';
