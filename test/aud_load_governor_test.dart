@@ -150,6 +150,20 @@ void main() {
       expect(governor.state.time, const Duration(milliseconds: 200));
     });
 
+    test('starts its counters again after a pause', () {
+      engine.start();
+      pass(const Duration(milliseconds: 100));
+      expect(governor.state.time, const Duration(milliseconds: 100));
+      // A second without a look - a suspended engine, a busy isolate.
+      budget.usage = const AudLoadBudgetUsage(units: 40, stolen: 500);
+      pass(const Duration(seconds: 1));
+      expect(governor.state.time, const Duration(milliseconds: 100));
+      pass(const Duration(milliseconds: 100));
+      expect(governor.state.time, const Duration(milliseconds: 1200));
+      // The stolen units of the pause do not count.
+      expect(governor.state.stolen, 0);
+    });
+
     test('skips a tick without time', () {
       engine.start();
       timers.last.fire();

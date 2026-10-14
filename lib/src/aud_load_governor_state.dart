@@ -67,7 +67,7 @@ class AudLoadGovernorState {
   final int xruns;
 
   /// The runs of renders that fill the device buffer and took longer than
-  /// it lasts, summed over the periods since the governor started.
+  /// it lasts, over the window of the governor.
   final int overloads;
 
   /// The units the owner of the budget stole since the governor started.

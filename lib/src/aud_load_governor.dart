@@ -117,6 +117,13 @@ class AudLoadGovernor extends AudEngineExtension {
     final now = _now();
     final elapsed = now - _lastTime;
     if (elapsed <= Duration.zero) return;
+    // Periods went by without a look - the engine was suspended, the
+    // isolate busy -: the counters start again instead of one long period
+    // that holds the renders and xruns of the pause.
+    if (elapsed > config.period * _maxPeriods) {
+      _baseline(engine);
+      return;
+    }
     // The policy steers the mean share; the p99 and the overloads of the
     // runs that fill the device buffer go along for the record (the
     // measurements of the Galaxy Tab S4 in ticket 29).
@@ -145,7 +152,6 @@ class AudLoadGovernor extends AudEngineExtension {
     if (budget.limit != policy.budget) budget.limit = policy.budget;
     _total = (
       xruns: _total.xruns + sample.xruns,
-      overloads: _total.overloads + sample.overloads,
       stolen: _total.stolen + sample.stolen,
     );
     _stolenHistory.add((time: now, stolen: _total.stolen));
@@ -167,7 +173,7 @@ class AudLoadGovernor extends AudEngineExtension {
       baseShare: policy.baseShare,
       fit: policy.fit ?? 0,
       xruns: _total.xruns,
-      overloads: _total.overloads,
+      overloads: window.bufferOverloads,
       stolen: _total.stolen,
       stolenPerMinute: _stolenPerMinute(now),
       action: action,
@@ -180,6 +186,9 @@ class AudLoadGovernor extends AudEngineExtension {
   // ######################
   // Private
   // ######################
+
+  /// The periods a tick may come late before the counters start again.
+  static const int _maxPeriods = 3;
 
   final Timer Function(Duration period, void Function(Timer timer) tick)
   _periodic;
@@ -196,11 +205,7 @@ class AudLoadGovernor extends AudEngineExtension {
   Duration _lastTime = Duration.zero;
   int _xruns = 0;
   AudLoadBudgetUsage _usage = const AudLoadBudgetUsage();
-  ({int xruns, int overloads, int stolen}) _total = (
-    xruns: 0,
-    overloads: 0,
-    stolen: 0,
-  );
+  ({int xruns, int stolen}) _total = (xruns: 0, stolen: 0);
 
   Duration _now() => _clock?.call() ?? _stopwatch.elapsed;
 

@@ -7,11 +7,21 @@
 - Add a load governor and the class of the device
 
 - AudLoadGovernor: an engine extension that sets an AudLoadBudget every 100 ms from the mean render share of the last second and the xruns
+
 - AudLoadPolicy: down at once on an xrun or a mean share above 85 %, up by a unit below 72 % while the budget limits; a line through the shares over the units lowers to the units that keep the mean at 75 %
+
 - AudLoadBudget, AudLoadBudgetUsage, AudLoadGovernorConfig, AudLoadGovernorState and AudLoadSample, which replays recorded loads
+
 - AudDeviceClass: the model, the cores, their clocks, the SoC and the media performance class through the C library, and the start budget of a class
+
 - A simulation of the stress test on modeled devices, the Galaxy Tab S4 of the measurements among them
+
 - The governor in the READMEs and the index
+
+- Add a new start of the governor's counters after a pause
+
+- A tick that comes more than three periods late starts the counters again instead of one long period with the renders and xruns of the pause
+- The overloads of the state are those of the window, not a sum of periods that overlap
 
 ## 0.4.1 - 2026-10-13
 
