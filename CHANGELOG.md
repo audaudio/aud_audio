@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Add a load governor and the class of the device
+
+- AudLoadGovernor: an engine extension that sets an AudLoadBudget every 100 ms from the mean render share of the last second and the xruns
+- AudLoadPolicy: down at once on an xrun or a mean share above 85 %, up by a unit below 72 % while the budget limits; a line through the shares over the units lowers to the units that keep the mean at 75 %
+- AudLoadBudget, AudLoadBudgetUsage, AudLoadGovernorConfig, AudLoadGovernorState and AudLoadSample, which replays recorded loads
+- AudDeviceClass: the model, the cores, their clocks, the SoC and the media performance class through the C library, and the start budget of a class
+- A simulation of the stress test on modeled devices, the Galaxy Tab S4 of the measurements among them
+- The governor in the READMEs and the index
+
 ## 0.4.1 - 2026-10-13
 
 ### Added
@@ -66,6 +79,7 @@
 
 - Example: Bluetooth MIDI on Android needs the permissions to scan and to connect, or the location below Android 12
 
+
 ## 0.3.0 - 2026-10-12
 
 ### Added
@@ -129,6 +143,7 @@
 - README.md, README.de.md and example/README.md show the measuring command of sampler_test.dart with AUD_WARMUP_SECONDS
 
 - example/README.md describes both pages and both integration tests
+
 
 ## 0.2.0 - 2026-10-09
 

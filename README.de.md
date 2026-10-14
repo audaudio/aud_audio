@@ -104,6 +104,21 @@ print(engine.numbers.toJson());
 print(engine.report());
 ```
 
+Ein Governor hält ein Budget an Stimmen in dem, was das Gerät in seinem
+Block rendert (Ticket 29). Die App bindet das Budget eines DSP-Pakets - das
+Stimmenbudget der Sampler-Knoten von `aud_dsp_sampler` - an
+`AudLoadBudget`:
+
+```dart
+final governor = AudLoadGovernor(
+  budget: samplerVoices, // ein AudLoadBudget der App
+  start: learnedBudget ?? AudDeviceClass.current().startUnits,
+);
+engine.addExtension(governor);
+engine.start();
+governor.states.listen((state) => print(state.budget));
+```
+
 `example/` hat drei Seiten auf einer Engine: Oszillator -> Filter ->
 Ausgang mit Frequenz und Cutoff; den SFZ-Sampler von `aud_dsp_sampler`
 mit Instrumenten, die auf dem Gerät erzeugt werden, einer
@@ -157,6 +172,26 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
 - `AudEngine.timing` ist das Timing des Graphen aus dem letzten Block für
   die Steuerseite: die angepasste Ausgangszeit, die gemeldete
   Ausgangslatenz und die Abstände zwischen den Renders (midi-003).
+- `AudLoadGovernor` ist eine Erweiterung, die alle 100 ms auf dem
+  Control-Thread auf die Last schaut, solange die Engine läuft: den
+  mittleren Anteil ihres Blocks, den die Renders in der letzten Sekunde
+  brauchten (`AudGraph.renderLoad`), die Xruns des Streams und die
+  Einheiten ihres `AudLoadBudget`. Ihre `AudLoadPolicy` senkt das Budget
+  sofort bei einem Xrun oder einem Mittel über 85 % und hebt es nur um
+  eine Einheit je Periode, solange das Mittel unter 72 % bleibt und das
+  Budget begrenzt. Sie legt eine Gerade durch die mittleren Anteile über
+  den Einheiten der letzten Sekunden und senkt das Budget auf die
+  Einheiten, die das Mittel bei 75 % halten, nicht tiefer als die
+  Einheiten in Gebrauch, auf das Ziel skaliert. Das Mittel, nicht das p99, sagt, wann ein Stream
+  aussetzt: Auf dem Galaxy Tab S4 machen die Note-on-Bündel des
+  Stresstests bei jeder Stimmenzahl einige Renders lang, und der
+  Gerätepuffer fängt sie auf (Ticket 29). Sie beginnt mit dem Budget, das
+  die App auf dem Gerät gelernt hat, oder mit
+  `AudDeviceClass.startUnits`: dem iOS-Modell und seinen
+  Performance-Kernen, den Takten der Android-Kerne, dem SoC und der Media
+  Performance Class, gelesen über die C-Bibliothek. Die Policy läuft ohne
+  Timer, deshalb lassen sich aufgezeichnete `AudLoadSample`s durch sie
+  abspielen.
 - Command-to-Sound läuft von der Host-Zeit einer leeren Transaktion bis
   zur Ausgabezeit des ersten Blocks, der sie rendert: Der Graph meldet die
   Sample-Position des Blocks, die letzte `AudStreamTime` des Streams
