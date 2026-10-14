@@ -23,7 +23,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.4.0"
+    version: "0.4.1"
   aud_audio_core:
     dependency: transitive
     description:
@@ -55,11 +55,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "393ae56991d2b8560bf5938c522dcb871a2d052f"
+      resolved-ref: ac060f73d1ab048de582a69d16428a96cd7a1f70
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_midi.git"
     source: git
-    version: "0.1.0"
+    version: "0.1.2"
   aud_audio_web:
     dependency: transitive
     description:
@@ -82,10 +82,10 @@ packages:
     dependency: "direct main"
     description:
       name: aud_midi
-      sha256: dff1edd3a9d0920e13e70472d4af77e36ab925c4ebe3a45499d8f0bd38aeec88
+      sha256: "6d0db20045c685c488497391000b430631e2c64edb3543ea18d73380ce77afe7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.3"
   aud_midi_android:
     dependency: transitive
     description:
@@ -154,10 +154,10 @@ packages:
     dependency: transitive
     description:
       name: aud_midi_windows
-      sha256: "61fcc68ca5e55487cb24afd8670db35ff523bb44ed15fb88031f76fb7bbf9af4"
+      sha256: b85f6f2ff5efbbe9ec759b99c45f92e5a3bc90ffbe8b8575d34a75679c757c09
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   bluez:
     dependency: transitive
     description:
