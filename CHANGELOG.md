@@ -21,7 +21,10 @@
 - Add a new start of the governor's counters after a pause
 
 - A tick that comes more than three periods late starts the counters again instead of one long period with the renders and xruns of the pause
+
 - The overloads of the state are those of the window, not a sum of periods that overlap
+
+- Add helix ^1.12.0 to the dev dependencies
 
 ## 0.4.1 - 2026-10-13
 
