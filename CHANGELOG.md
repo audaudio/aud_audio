@@ -26,6 +26,15 @@
 
 - Add helix ^1.12.0 to the dev dependencies
 
+- Add the fixes of the review of the load governor
+
+- A governor whose engine went without telling it stops at its next tick
+- A timing change while the engine stands starts no clock; a reset of the stream's counters counts no xruns backwards
+- The sample of a period and the stolen units of the last minute in functions of their own; the clocks of the Android cores too
+- sysctlString keeps a terminator; the system properties of Android through one lookup of libc
+- The config names its broken assertion; AudLoadSample.fromJson after its constructor
+- The API of the governor and the inputs of the start budgets in the READMEs; the web fixture uses the governor
+
 ## 0.4.1 - 2026-10-13
 
 ### Added

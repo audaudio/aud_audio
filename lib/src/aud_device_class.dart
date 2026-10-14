@@ -122,18 +122,7 @@ class AudDeviceClass {
   // ######################
 
   static AudDeviceClass _android(AudDeviceProbe probe) {
-    final clocks = <int>[];
-    for (var core = 0; core < probe.processors; core++) {
-      final khz = int.tryParse(
-        probe
-                .readFile(
-                  '/sys/devices/system/cpu/cpu$core/cpufreq/cpuinfo_max_freq',
-                )
-                ?.trim() ??
-            '',
-      );
-      if (khz != null && khz > 0) clocks.add(khz);
-    }
+    final clocks = _maxClocksKhz(probe);
     final fastest = clocks.isEmpty ? 0 : clocks.reduce((a, b) => a > b ? a : b);
     String property(String name) => probe.property(name).trim();
     final hardware = property('ro.hardware');
@@ -159,6 +148,20 @@ class AudDeviceClass {
           hardware == 'goldfish',
     );
   }
+
+  /// The highest clock of each core that tells it, in kHz.
+  static List<int> _maxClocksKhz(AudDeviceProbe probe) => [
+    for (var core = 0; core < probe.processors; core++)
+      int.tryParse(
+            probe
+                    .readFile(
+                      '/sys/devices/system/cpu/cpu$core/cpufreq/cpuinfo_max_freq',
+                    )
+                    ?.trim() ??
+                '',
+          ) ??
+          0,
+  ].where((khz) => khz > 0).toList();
 
   static AudDeviceClass _ios(AudDeviceProbe probe) {
     final simulated = probe.environment('SIMULATOR_MODEL_IDENTIFIER');

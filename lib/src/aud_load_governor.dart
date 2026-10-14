@@ -7,6 +7,8 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:aud_audio_graph/aud_audio_graph.dart';
+
 import 'aud_engine.dart';
 import 'aud_engine_extension.dart';
 import 'aud_engine_state.dart';
@@ -98,7 +100,7 @@ class AudLoadGovernor extends AudEngineExtension {
   @override
   void engineTimingChanged(AudEngine engine) {
     policy.timingChanged();
-    _baseline(engine);
+    if (isRunning) _baseline(engine);
   }
 
   @override
@@ -113,7 +115,13 @@ class AudLoadGovernor extends AudEngineExtension {
   /// period while the engine runs.
   void tick() {
     final engine = _engine;
-    if (engine == null || engine.state != AudEngineState.running) return;
+    if (engine == null) return;
+    // Removed before the engine went: nobody tells it, so it stops here.
+    if (engine.state == AudEngineState.disposed) {
+      engineDisposing(engine);
+      return;
+    }
+    if (engine.state != AudEngineState.running) return;
     final now = _now();
     final elapsed = now - _lastTime;
     if (elapsed <= Duration.zero) return;
@@ -128,36 +136,20 @@ class AudLoadGovernor extends AudEngineExtension {
     // runs that fill the device buffer go along for the record (the
     // measurements of the Galaxy Tab S4 in ticket 29).
     final buffer = engine.format.bufferFrames;
-    final window = engine.graph.renderLoad(config.window, buffer);
-    final period = engine.graph.renderLoad(elapsed, buffer);
+    final window = engine.graph.renderLoad(
+      window: config.window,
+      bufferFrames: buffer,
+    );
     final xruns = engine.counters.xruns;
     final usage = budget.usage;
-    final seconds = elapsed.inMicroseconds / Duration.microsecondsPerSecond;
-    final frames = engine.format.sampleRate * seconds;
-    final sample = AudLoadSample(
-      time: now,
-      periodMean: period.mean,
-      windowMean: window.mean,
-      p99: window.bufferP99,
-      max: window.bufferMax,
-      meanUnits: frames > 0
-          ? (usage.unitFrames - _usage.unitFrames) / frames
-          : 0,
-      units: usage.units,
-      xruns: xruns - _xruns,
-      overloads: period.bufferOverloads,
-      stolen: usage.stolen - _usage.stolen,
-    );
+    final sample = _measure(engine, now, elapsed, window, xruns, usage);
     final action = policy.step(sample, reserve: budget.reserve);
     if (budget.limit != policy.budget) budget.limit = policy.budget;
     _total = (
       xruns: _total.xruns + sample.xruns,
       stolen: _total.stolen + sample.stolen,
     );
-    _stolenHistory.add((time: now, stolen: _total.stolen));
-    while (now - _stolenHistory.first.time > const Duration(minutes: 1)) {
-      _stolenHistory.removeFirst();
-    }
+    _rememberStolen(now);
     _lastTime = now;
     _xruns = xruns;
     _usage = usage;
@@ -168,7 +160,7 @@ class AudLoadGovernor extends AudEngineExtension {
       units: usage.units,
       meanUnits: sample.meanUnits,
       load: window,
-      periodMean: period.mean,
+      periodMean: sample.periodMean,
       unitCost: policy.unitCost ?? 0,
       baseShare: policy.baseShare,
       fit: policy.fit ?? 0,
@@ -221,6 +213,46 @@ class AudLoadGovernor extends AudEngineExtension {
     _timer?.cancel();
     _timer = null;
     _stopwatch.stop();
+  }
+
+  /// The sample of the period that ends [now] after [elapsed].
+  AudLoadSample _measure(
+    AudEngine engine,
+    Duration now,
+    Duration elapsed,
+    AudGraphLoad window,
+    int xruns,
+    AudLoadBudgetUsage usage,
+  ) {
+    final period = engine.graph.renderLoad(
+      window: elapsed,
+      bufferFrames: engine.format.bufferFrames,
+    );
+    final seconds = elapsed.inMicroseconds / Duration.microsecondsPerSecond;
+    final frames = engine.format.sampleRate * seconds;
+    return AudLoadSample(
+      time: now,
+      periodMean: period.mean,
+      windowMean: window.mean,
+      p99: window.bufferP99,
+      max: window.bufferMax,
+      meanUnits: frames > 0
+          ? (usage.unitFrames - _usage.unitFrames) / frames
+          : 0,
+      units: usage.units,
+      // A reset of the stream's counters starts them at zero again.
+      xruns: xruns >= _xruns ? xruns - _xruns : xruns,
+      overloads: period.bufferOverloads,
+      stolen: usage.stolen - _usage.stolen,
+    );
+  }
+
+  /// Keeps the stolen units of the last minute.
+  void _rememberStolen(Duration now) {
+    _stolenHistory.add((time: now, stolen: _total.stolen));
+    while (now - _stolenHistory.first.time > const Duration(minutes: 1)) {
+      _stolenHistory.removeFirst();
+    }
   }
 
   double _stolenPerMinute(Duration now) {

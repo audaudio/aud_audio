@@ -25,9 +25,9 @@ class AudLoadGovernorConfig {
     this.step = 1,
     this.holdAfterDown = const Duration(seconds: 2),
     this.settleTime = const Duration(seconds: 10),
-  }) : assert(upBelow <= target && target <= downAbove),
-       assert(0 < floor && floor <= ceiling),
-       assert(step > 0);
+  }) : assert(upBelow <= target && target <= downAbove, 'band'),
+       assert(0 < floor && floor <= ceiling, 'floor'),
+       assert(step > 0, 'step');
 
   // ...........................................................................
   /// How often the governor looks at the load.

@@ -119,6 +119,13 @@ engine.start();
 governor.states.listen((state) => print(state.budget));
 ```
 
+`AudLoadGovernorConfig` setzt Periode, Fenster, das Band (`upBelow`,
+`target`, `downAbove`), Boden, Decke, Schritt, Halte- und Einschwingzeit.
+`states` liefert je Periode einen `AudLoadGovernorState` mit seiner
+`AudLoadAction`; `AudLoadBudget.usage` liefert eine `AudLoadBudgetUsage`;
+`AudDeviceClass.key` benennt das Gerät für ein gelerntes Budget, und
+`AudDeviceClass.fromProbe` liest eine `AudDeviceProbe` (Tests).
+
 `example/` hat drei Seiten auf einer Engine: Oszillator -> Filter ->
 Ausgang mit Frequenz und Cutoff; den SFZ-Sampler von `aud_dsp_sampler`
 mit Instrumenten, die auf dem Gerät erzeugt werden, einer
@@ -182,16 +189,16 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   Budget begrenzt. Sie legt eine Gerade durch die mittleren Anteile über
   den Einheiten der letzten Sekunden und senkt das Budget auf die
   Einheiten, die das Mittel bei 75 % halten, nicht tiefer als die
-  Einheiten in Gebrauch, auf das Ziel skaliert. Das Mittel, nicht das p99, sagt, wann ein Stream
-  aussetzt: Auf dem Galaxy Tab S4 machen die Note-on-Bündel des
-  Stresstests bei jeder Stimmenzahl einige Renders lang, und der
-  Gerätepuffer fängt sie auf (Ticket 29). Sie beginnt mit dem Budget, das
-  die App auf dem Gerät gelernt hat, oder mit
-  `AudDeviceClass.startUnits`: dem iOS-Modell und seinen
-  Performance-Kernen, den Takten der Android-Kerne, dem SoC und der Media
-  Performance Class, gelesen über die C-Bibliothek. Die Policy läuft ohne
-  Timer, deshalb lassen sich aufgezeichnete `AudLoadSample`s durch sie
-  abspielen.
+  Einheiten in Gebrauch, auf das Ziel skaliert. Das Mittel, nicht das
+  p99, sagt, wann ein Stream aussetzt: Auf dem Galaxy Tab S4 machen die
+  Note-on-Bündel des Stresstests bei jeder Stimmenzahl einige Renders
+  lang, und der Gerätepuffer fängt sie auf (Ticket 29). Sie beginnt mit
+  dem Budget, das die App auf dem Gerät gelernt hat, oder mit
+  `AudDeviceClass.startUnits`: den Performance-Kernen unter iOS, der Media
+  Performance Class und dem Takt der schnellsten Kerne unter Android, 64
+  auf einem Simulator oder Emulator, gelesen über die C-Bibliothek. Die
+  Policy läuft ohne Timer, deshalb lassen sich aufgezeichnete
+  `AudLoadSample`s durch sie abspielen.
 - Command-to-Sound läuft von der Host-Zeit einer leeren Transaktion bis
   zur Ausgabezeit des ersten Blocks, der sie rendert: Der Graph meldet die
   Sample-Position des Blocks, die letzte `AudStreamTime` des Streams

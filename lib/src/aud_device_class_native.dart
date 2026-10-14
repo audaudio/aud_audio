@@ -44,15 +44,9 @@ class AudDeviceProbeNative implements AudDeviceProbe {
   String property(String name) {
     // coverage:ignore-start
     if (!Platform.isAndroid) return '';
-    final get = DynamicLibrary.open('libc.so')
-        .lookupFunction<
-          Int32 Function(Pointer<Utf8>, Pointer<Utf8>),
-          int Function(Pointer<Utf8>, Pointer<Utf8>)
-        >('__system_property_get');
     return using((arena) {
-      // PROP_VALUE_MAX of <sys/system_properties.h>.
-      final value = arena<Uint8>(92).cast<Utf8>();
-      final length = get(name.toNativeUtf8(allocator: arena), value);
+      final value = arena<Uint8>(_propValueMax).cast<Utf8>();
+      final length = _propertyGet(name.toNativeUtf8(allocator: arena), value);
       return length > 0 ? value.toDartString(length: length) : '';
     });
     // coverage:ignore-end
@@ -67,7 +61,8 @@ class AudDeviceProbeNative implements AudDeviceProbe {
       if (_sysctl(key, nullptr, size, nullptr, 0) != 0 || size.value == 0) {
         return null;
       }
-      final value = arena<Uint8>(size.value);
+      // One zeroed byte more: terminated even without a NUL in the value.
+      final value = arena<Uint8>(size.value + 1);
       if (_sysctl(key, value.cast(), size, nullptr, 0) != 0) return null;
       return value.cast<Utf8>().toDartString();
     });
@@ -86,6 +81,17 @@ class AudDeviceProbeNative implements AudDeviceProbe {
           : value.value;
     });
   }
+
+  /// PROP_VALUE_MAX of `<sys/system_properties.h>`.
+  static const _propValueMax = 92;
+
+  // coverage:ignore-start
+  static final _propertyGet = DynamicLibrary.open('libc.so')
+      .lookupFunction<
+        Int32 Function(Pointer<Utf8>, Pointer<Utf8>),
+        int Function(Pointer<Utf8>, Pointer<Utf8>)
+      >('__system_property_get');
+  // coverage:ignore-end
 
   static final _sysctl = DynamicLibrary.process()
       .lookupFunction<

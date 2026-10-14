@@ -40,6 +40,25 @@ class AudLoadSample {
     this.stolen = 0,
   });
 
+  /// A sample from [json], the output of [toJson]: recorded loads replay
+  /// through a policy (step 4 of the plan of ticket 29).
+  factory AudLoadSample.fromJson(Map<String, Object?> json) {
+    double d(String key) => (json[key] as num? ?? 0).toDouble();
+    int i(String key) => (json[key] as num? ?? 0).toInt();
+    return AudLoadSample(
+      time: Duration(milliseconds: i('timeMs')),
+      periodMean: d('periodMean'),
+      windowMean: d('windowMean'),
+      p99: d('p99'),
+      max: d('max'),
+      meanUnits: d('meanUnits'),
+      units: i('units'),
+      xruns: i('xruns'),
+      overloads: i('overloads'),
+      stolen: i('stolen'),
+    );
+  }
+
   // ...........................................................................
   /// The time since the governor started.
   final Duration time;
@@ -88,25 +107,6 @@ class AudLoadSample {
     'overloads': overloads,
     'stolen': stolen,
   };
-
-  /// A sample from [json], the output of [toJson]: recorded loads replay
-  /// through a policy (step 4 of the plan of ticket 29).
-  factory AudLoadSample.fromJson(Map<String, Object?> json) {
-    double d(String key) => (json[key] as num? ?? 0).toDouble();
-    int i(String key) => (json[key] as num? ?? 0).toInt();
-    return AudLoadSample(
-      time: Duration(milliseconds: i('timeMs')),
-      periodMean: d('periodMean'),
-      windowMean: d('windowMean'),
-      p99: d('p99'),
-      max: d('max'),
-      meanUnits: d('meanUnits'),
-      units: i('units'),
-      xruns: i('xruns'),
-      overloads: i('overloads'),
-      stolen: i('stolen'),
-    );
-  }
 
   @override
   String toString() => 'AudLoadSample(${toJson()})';
@@ -188,7 +188,9 @@ class AudLoadPolicy {
     if (fresh && sample.windowMean > config.downAbove) {
       return _down(sample, xrun: false);
     }
-    final limits = sample.stolen > 0 || sample.units >= _budget - reserve - 1;
+    // Within a unit of the cap the owner keeps, `limit - reserve`.
+    final cap = _budget - reserve;
+    final limits = sample.stolen > 0 || sample.units >= cap - 1;
     final held = sinceDown != null && sinceDown < config.holdAfterDown;
     if (sample.windowMean < config.upBelow && limits && !held) return _up();
     return AudLoadAction.hold;

@@ -30,19 +30,19 @@ void main() {
       expect(config.toString(), contains('ceiling: 128'));
     });
 
-    test('refuses a band that does not hold the target', () {
-      expect(
-        () => AudLoadGovernorConfig(target: 0.9),
-        throwsA(isA<AssertionError>()),
-      );
-      expect(
-        () => AudLoadGovernorConfig(floor: 0),
-        throwsA(isA<AssertionError>()),
-      );
-      expect(
-        () => AudLoadGovernorConfig(step: 0),
-        throwsA(isA<AssertionError>()),
-      );
-    });
+    for (final (name, create) in [
+      ('band', () => AudLoadGovernorConfig(target: 0.9)),
+      ('floor', () => AudLoadGovernorConfig(floor: 0)),
+      ('step', () => AudLoadGovernorConfig(step: 0)),
+    ]) {
+      test('refuses a broken $name', () {
+        expect(
+          create,
+          throwsA(
+            isA<AssertionError>().having((e) => e.message, 'message', name),
+          ),
+        );
+      });
+    }
   });
 }

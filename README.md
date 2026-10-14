@@ -114,6 +114,13 @@ engine.start();
 governor.states.listen((state) => print(state.budget));
 ```
 
+`AudLoadGovernorConfig` sets the period, the window, the band (`upBelow`,
+`target`, `downAbove`), floor, ceiling, step, hold and settle time.
+`states` emits an `AudLoadGovernorState` with its `AudLoadAction` per
+period; `AudLoadBudget.usage` returns an `AudLoadBudgetUsage`;
+`AudDeviceClass.key` names the device for a learned budget, and
+`AudDeviceClass.fromProbe` reads an `AudDeviceProbe` (tests).
+
 `example/` has three pages on one engine: oscillator -> filter -> output
 with frequency and cutoff; the SFZ sampler of `aud_dsp_sampler` with
 instruments generated on the device, a multi-touch keyboard, sustain,
@@ -176,9 +183,10 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   the Galaxy Tab S4 the note-on bursts of the stress test make a few
   renders long at any number of voices, and the device buffer absorbs
   them (ticket 29). It starts from the budget the app learned on the
-  device or from `AudDeviceClass.startUnits`: the iOS model and its
-  performance cores, the clocks of the Android cores, the SoC and the
-  media performance class, read from the system through the C library.
+  device or from `AudDeviceClass.startUnits`: the performance cores on
+  iOS, the media performance class and the clock of the fastest cores on
+  Android, 64 on a simulator or emulator, read from the system through
+  the C library.
   The policy runs without timers, so recorded `AudLoadSample`s replay
   through it.
 - Command-to-sound runs from the host time of an empty transaction to the

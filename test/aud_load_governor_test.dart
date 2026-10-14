@@ -164,6 +164,37 @@ void main() {
       expect(governor.state.stolen, 0);
     });
 
+    test('stops when its engine went without telling it', () {
+      engine.start();
+      engine.removeExtension(governor);
+      engine.dispose();
+      expect(governor.isRunning, isTrue);
+      timers.single.fire();
+      expect(governor.isRunning, isFalse);
+      expect(timers.single.isActive, isFalse);
+      // Without an engine a tick does nothing.
+      governor.tick();
+    });
+
+    test('starts no clock when the timing changes while stopped', () {
+      engine.start();
+      engine.stop();
+      governor.engineTimingChanged(engine);
+      expect(governor.isRunning, isFalse);
+    });
+
+    test(
+      'counts no xruns backwards when the stream starts its counters again',
+      () {
+        engine.start();
+        pass(const Duration(milliseconds: 100));
+        engine.stream.resetCounters();
+        pass(const Duration(milliseconds: 100));
+        expect(governor.state.xruns, 0);
+        expect(governor.lastSample.xruns, 0);
+      },
+    );
+
     test('skips a tick without time', () {
       engine.start();
       timers.last.fire();
