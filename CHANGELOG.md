@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.2 - 2026-10-14
 
 ### Added
 
@@ -29,10 +29,15 @@
 - Add the fixes of the review of the load governor
 
 - A governor whose engine went without telling it stops at its next tick
+
 - A timing change while the engine stands starts no clock; a reset of the stream's counters counts no xruns backwards
+
 - The sample of a period and the stolen units of the last minute in functions of their own; the clocks of the Android cores too
+
 - sysctlString keeps a terminator; the system properties of Android through one lookup of libc
+
 - The config names its broken assertion; AudLoadSample.fromJson after its constructor
+
 - The API of the governor and the inputs of the start budgets in the READMEs; the web fixture uses the governor
 
 ## 0.4.1 - 2026-10-13
@@ -101,7 +106,6 @@
 
 - Example: Bluetooth MIDI on Android needs the permissions to scan and to connect, or the location below Android 12
 
-
 ## 0.3.0 - 2026-10-12
 
 ### Added
@@ -165,7 +169,6 @@
 - README.md, README.de.md and example/README.md show the measuring command of sampler_test.dart with AUD_WARMUP_SECONDS
 
 - example/README.md describes both pages and both integration tests
-
 
 ## 0.2.0 - 2026-10-09
 
