@@ -197,7 +197,8 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   `AudDeviceClass.startUnits`: den Performance-Kernen unter iOS, der Media
   Performance Class und dem Takt der schnellsten Kerne unter Android, 128
   auf einem Simulator oder Emulator, gelesen über die C-Bibliothek; Ticket
-  30 hob sie mit den schnelleren Sampler-Stimmen an (lifecycle-004). Die
+  30 hob diese Startwerte für die schnelleren Sampler-Stimmen an
+  (lifecycle-004). Die
   Policy läuft ohne Timer, deshalb lassen sich aufgezeichnete
   `AudLoadSample`s durch sie abspielen.
 - Command-to-Sound läuft von der Host-Zeit einer leeren Transaktion bis
