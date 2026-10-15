@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.3 - 2026-10-15
+
+### Added
+
+- Add higher start budgets for the faster sampler voices
+
+- AudDeviceClass.startUnits rises with the voice loop and the fast cores of ticket 30 (lifecycle-004)
+
+- The class of the Galaxy Tab S4 (fast cores from 2.3 GHz) starts at 96 instead of 32, slower Android devices at 48, faster ones up to 192
+
+- iOS starts at 128 with two performance cores and at 192 with three or more, simulators and emulators at 128
+
+- Add clearer words for the raised start units
+
+- The README says which start units ticket 30 raised
+
 ## 0.4.2 - 2026-10-14
 
 ### Added
