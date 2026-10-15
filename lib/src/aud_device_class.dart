@@ -77,23 +77,29 @@ class AudDeviceClass {
       '${virtual ? '/virtual' : ''}';
 
   /// The units - sampler voices - a governor starts with on this class of
-  /// device before it learned better; set by the measurements of ticket 29.
+  /// device before it learned better; set by the measurements of ticket 29
+  /// and raised with the faster voices and the fast cores of ticket 30
+  /// (lifecycle-004): the Galaxy Tab S4 (fast cores at 2.36 GHz) renders 96
+  /// voices of the stress test at a mean of 0.44 of its block, the iPhone 16
+  /// Pro Max (two performance cores) and the iPad Pro M5 (three) far more
+  /// than the stress test asks for.
   int get startUnits {
-    if (virtual) return 64;
+    if (virtual) return 128;
     switch (platform) {
       case 'ios':
-        return fastCores >= 4
-            ? 128
+        return fastCores >= 3
+            ? 192
             : fastCores >= 2
-            ? 96
-            : 48;
+            ? 128
+            : 64;
       case 'android':
-        if (mediaPerformanceClass >= 34) return 96;
-        if (mediaPerformanceClass >= 33) return 80;
-        if (mediaPerformanceClass >= 31) return 64;
-        if (fastCoreMhz >= 3000) return 64;
-        if (fastCoreMhz >= 2600) return 48;
-        return 32;
+        if (mediaPerformanceClass >= 34) return 192;
+        if (mediaPerformanceClass >= 33) return 160;
+        if (mediaPerformanceClass >= 31) return 128;
+        if (fastCoreMhz >= 3000) return 128;
+        if (fastCoreMhz >= 2600) return 112;
+        if (fastCoreMhz >= 2300) return 96;
+        return 48;
       default:
         return 64;
     }

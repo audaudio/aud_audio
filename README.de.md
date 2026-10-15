@@ -195,8 +195,9 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   lang, und der Gerätepuffer fängt sie auf (Ticket 29). Sie beginnt mit
   dem Budget, das die App auf dem Gerät gelernt hat, oder mit
   `AudDeviceClass.startUnits`: den Performance-Kernen unter iOS, der Media
-  Performance Class und dem Takt der schnellsten Kerne unter Android, 64
-  auf einem Simulator oder Emulator, gelesen über die C-Bibliothek. Die
+  Performance Class und dem Takt der schnellsten Kerne unter Android, 128
+  auf einem Simulator oder Emulator, gelesen über die C-Bibliothek; Ticket
+  30 hob sie mit den schnelleren Sampler-Stimmen an (lifecycle-004). Die
   Policy läuft ohne Timer, deshalb lassen sich aufgezeichnete
   `AudLoadSample`s durch sie abspielen.
 - Command-to-Sound läuft von der Host-Zeit einer leeren Transaktion bis

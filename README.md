@@ -185,8 +185,9 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   them (ticket 29). It starts from the budget the app learned on the
   device or from `AudDeviceClass.startUnits`: the performance cores on
   iOS, the media performance class and the clock of the fastest cores on
-  Android, 64 on a simulator or emulator, read from the system through
-  the C library.
+  Android, 128 on a simulator or emulator, read from the system through
+  the C library; ticket 30 raised them with the faster sampler voices
+  (lifecycle-004).
   The policy runs without timers, so recorded `AudLoadSample`s replay
   through it.
 - Command-to-sound runs from the host time of an empty transaction to the

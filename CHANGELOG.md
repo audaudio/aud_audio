@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Add higher start budgets for the faster sampler voices
+
+- AudDeviceClass.startUnits rises with the voice loop and the fast cores of ticket 30 (lifecycle-004)
+- The class of the Galaxy Tab S4 (fast cores from 2.3 GHz) starts at 96 instead of 32, slower Android devices at 48, faster ones up to 192
+- iOS starts at 128 with two performance cores and at 192 with three or more, simulators and emulators at 128
+
 ## 0.4.2 - 2026-10-14
 
 ### Added
@@ -39,6 +49,7 @@
 - The config names its broken assertion; AudLoadSample.fromJson after its constructor
 
 - The API of the governor and the inputs of the start budgets in the READMEs; the web fixture uses the governor
+
 
 ## 0.4.1 - 2026-10-13
 
@@ -106,6 +117,7 @@
 
 - Example: Bluetooth MIDI on Android needs the permissions to scan and to connect, or the location below Android 12
 
+
 ## 0.3.0 - 2026-10-12
 
 ### Added
@@ -169,6 +181,7 @@
 - README.md, README.de.md and example/README.md show the measuring command of sampler_test.dart with AUD_WARMUP_SECONDS
 
 - example/README.md describes both pages and both integration tests
+
 
 ## 0.2.0 - 2026-10-09
 

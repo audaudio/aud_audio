@@ -43,7 +43,7 @@ void main() {
         expect(device.sdk, 29);
         expect(device.virtual, isFalse);
         expect(device.key, 'android/SM-T830');
-        expect(device.startUnits, 32);
+        expect(device.startUnits, 96);
       });
 
       test('prefers the SoC model and reads the performance class', () {
@@ -67,7 +67,7 @@ void main() {
         expect(device.fastCores, 1);
         expect(device.fastCoreMhz, 3302);
         expect(device.mediaPerformanceClass, 34);
-        expect(device.startUnits, 96);
+        expect(device.startUnits, 192);
       });
 
       test('knows the emulator', () {
@@ -82,7 +82,7 @@ void main() {
           );
           expect(device.virtual, isTrue, reason: '$property');
           expect(device.key, 'android/unknown/virtual');
-          expect(device.startUnits, 64);
+          expect(device.startUnits, 128);
         }
       });
 
@@ -103,7 +103,7 @@ void main() {
         expect(device.fastCores, 2);
         expect(device.virtual, isFalse);
         expect(device.key, 'ios/iPhone17,2');
-        expect(device.startUnits, 96);
+        expect(device.startUnits, 128);
       });
 
       test('reads the simulated model of the simulator', () {
@@ -132,7 +132,7 @@ void main() {
         expect(device.model, 'arm64');
         expect(device.virtual, isTrue);
         expect(device.key, 'ios/arm64/virtual');
-        expect(device.startUnits, 64);
+        expect(device.startUnits, 128);
       });
 
       test('takes an empty model when iOS tells none', () {
@@ -157,13 +157,17 @@ void main() {
       test('by the performance cores on iOS', () {
         expect(
           const AudDeviceClass(platform: 'ios', fastCores: 4).startUnits,
-          128,
+          192,
+        );
+        expect(
+          const AudDeviceClass(platform: 'ios', fastCores: 3).startUnits,
+          192,
         );
         expect(
           const AudDeviceClass(platform: 'ios', fastCores: 2).startUnits,
-          96,
+          128,
         );
-        expect(const AudDeviceClass(platform: 'ios').startUnits, 48);
+        expect(const AudDeviceClass(platform: 'ios').startUnits, 64);
       });
 
       test('by the performance class and the clock on Android', () {
@@ -172,20 +176,21 @@ void main() {
           mediaPerformanceClass: mpc,
           fastCoreMhz: mhz,
         ).startUnits;
-        expect(start(mpc: 35), 96);
-        expect(start(mpc: 33), 80);
-        expect(start(mpc: 31), 64);
-        expect(start(mhz: 3200), 64);
-        expect(start(mhz: 2800), 48);
-        expect(start(mhz: 2400), 32);
-        expect(start(), 32);
+        expect(start(mpc: 35), 192);
+        expect(start(mpc: 33), 160);
+        expect(start(mpc: 31), 128);
+        expect(start(mhz: 3200), 128);
+        expect(start(mhz: 2800), 112);
+        expect(start(mhz: 2400), 96);
+        expect(start(mhz: 2000), 48);
+        expect(start(), 48);
       });
     });
 
     test('goes to JSON and a text', () {
       const device = AudDeviceClass(platform: 'ios', model: 'iPad17,3');
       expect(device.toJson()['model'], 'iPad17,3');
-      expect(device.toJson()['startUnits'], 48);
+      expect(device.toJson()['startUnits'], 64);
       expect(device.toString(), contains('iPad17,3'));
     });
 
