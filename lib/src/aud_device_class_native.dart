@@ -52,6 +52,8 @@ class AudDeviceProbeNative implements AudDeviceProbe {
     // coverage:ignore-end
   }
 
+  // iOS and macOS only.
+  // coverage:ignore-start
   @override
   String? sysctlString(String name) {
     if (!Platform.isIOS && !Platform.isMacOS) return null;
@@ -67,7 +69,10 @@ class AudDeviceProbeNative implements AudDeviceProbe {
       return value.cast<Utf8>().toDartString();
     });
   }
+  // coverage:ignore-end
 
+  // iOS and macOS only.
+  // coverage:ignore-start
   @override
   int? sysctlInt(String name) {
     if (!Platform.isIOS && !Platform.isMacOS) return null;
@@ -81,6 +86,7 @@ class AudDeviceProbeNative implements AudDeviceProbe {
           : value.value;
     });
   }
+  // coverage:ignore-end
 
   /// PROP_VALUE_MAX of `<sys/system_properties.h>`.
   static const _propValueMax = 92;
@@ -93,6 +99,8 @@ class AudDeviceProbeNative implements AudDeviceProbe {
       >('__system_property_get');
   // coverage:ignore-end
 
+  // iOS and macOS only.
+  // coverage:ignore-start
   static final _sysctl = DynamicLibrary.process()
       .lookupFunction<
         Int32 Function(
@@ -110,4 +118,5 @@ class AudDeviceProbeNative implements AudDeviceProbe {
           int,
         )
       >('sysctlbyname');
+  // coverage:ignore-end
 }
