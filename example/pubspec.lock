@@ -23,7 +23,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.4.3"
+    version: "0.4.4"
   aud_audio_core:
     dependency: transitive
     description:
@@ -55,11 +55,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "53b05994c53fef7f1146e08127b7ebf50cea6b21"
+      resolved-ref: "45c78223c56b1136af01b2b6e8da7035ed2faee7"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_midi.git"
     source: git
-    version: "0.1.4"
+    version: "0.1.5"
   aud_audio_web:
     dependency: transitive
     description:
