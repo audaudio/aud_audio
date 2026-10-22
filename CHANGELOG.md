@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.4 - 2026-10-22
+
+### Added
+
+- Add macOS to the platforms of the engine
+- pubspec.yaml lists macOS, which aud_audio_io serves with its Core Audio device (release-005)
+- README.md, README.de.md and index.jsonc name macOS; Windows and Linux keep the null device until S3c and S3d
+
 ## 0.4.3 - 2026-10-15
 
 ### Added
