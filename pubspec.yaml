@@ -1,5 +1,5 @@
 name: aud_audio
-description: "The Audanika Audio Engine: a Flutter audio graph defined in Dart and rendered in C++, on iOS and Android first"
+description: "The Audanika Audio Engine: a Flutter audio graph defined in Dart and rendered in C++, on iOS, Android and macOS"
 version: 0.4.3
 publish_to: none
 homepage: https://github.com/audaudio/aud_audio
@@ -8,10 +8,12 @@ repository: https://github.com/audaudio/aud_audio
 environment:
   sdk: ^3.12.2
 
-# The first 0.x releases target iOS and Android (release-001).
+# The first 0.x releases target iOS and Android (release-001); macOS
+# joins with the Audanika Mac app (release-005).
 platforms:
   android:
   ios:
+  macos:
 
 # The family is pinned to exact versions (family-001).
 dependencies:

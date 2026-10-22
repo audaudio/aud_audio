@@ -4,7 +4,7 @@ The Audanika Audio Engine: a Flutter audio graph defined in Dart and
 rendered in C++. `AudEngine` plays a graph of `aud_audio_graph` through an
 output stream of `aud_audio_io`, registers the node types of DSP packages
 and recovers from route changes, interruptions and lost devices on its
-own. iOS and Android first.
+own. iOS and Android first, macOS with the Audanika Mac app.
 
 Part of the Audanika Audio Engine; planned in [aud_audio_pm](https://github.com/audaudio/aud_audio_pm).
 
@@ -39,7 +39,9 @@ dependencies:
 The package needs the Flutter SDK, as `aud_audio_io` does. It pins exact
 versions of `aud_audio_core`, `aud_audio_graph`, `aud_audio_io` and
 `aud_audio_web` (family-001). Its platforms are iOS and Android
-(release-001); macOS, Windows and Linux run the null device until S3b.
+(release-001) and macOS on the Core Audio device of `aud_audio_io`
+(release-005, ticket 37); Windows and Linux run the null device until S3c
+and S3d.
 
 ## Documentation
 

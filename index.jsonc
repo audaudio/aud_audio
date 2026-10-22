@@ -6,7 +6,7 @@
 
 {
   "name": "aud_audio",
-  "summary": "The Audanika Audio Engine: AudEngine plays a graph of aud_audio_graph through an output stream of aud_audio_io, registers the node types of DSP packages and keeps the lifecycle; one API on native platforms and the web, iOS and Android first.",
+  "summary": "The Audanika Audio Engine: AudEngine plays a graph of aud_audio_graph through an output stream of aud_audio_io, registers the node types of DSP packages and keeps the lifecycle; one API on native platforms and the web, iOS and Android first, macOS with the Mac app (release-005).",
   "domain": [
     "The Audanika Audio Engine",
     "The sample cache budget of the process and the numbers of the engine: render time, xruns, command to sound, cache and loads",
