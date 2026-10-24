@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.5 - 2026-10-24
+
+### Changed
+
+- Run the native tests on Windows
+- Name the Windows device of aud_audio_io in the README
+
 ## 0.4.4 - 2026-10-22
 
 ### Added
