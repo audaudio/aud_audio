@@ -39,9 +39,9 @@ dependencies:
 The package needs the Flutter SDK, as `aud_audio_io` does. It pins exact
 versions of `aud_audio_core`, `aud_audio_graph`, `aud_audio_io` and
 `aud_audio_web` (family-001). Its platforms are iOS and Android
-(release-001) and macOS on the Core Audio device of `aud_audio_io`
-(release-005, ticket 37); Windows and Linux run the null device until S3c
-and S3d.
+(release-001), macOS on the Core Audio device of `aud_audio_io`
+(release-005, ticket 37) and Windows on its WASAPI device (io-005, ticket
+38); Linux runs the null device until its part of S3b.
 
 ## Documentation
 

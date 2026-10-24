@@ -5,6 +5,9 @@
 ### Changed
 
 - Run the native tests on Windows
+- Name the Windows device of aud_audio_io in the README
+
+The platforms paragraph names the WASAPI device on Windows (io-005, ticket 38); Linux keeps the null device
 
 ## 0.4.4 - 2026-10-22
 
