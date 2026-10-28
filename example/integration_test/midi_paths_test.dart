@@ -51,8 +51,13 @@ const _marginSeconds = int.fromEnvironment(
 );
 const _seconds = int.fromEnvironment('AUD_MEASURE_SECONDS', defaultValue: 5);
 
-typedef _TapC =
-    Void Function(Pointer<Void>, Uint32, Pointer<Void>, Uint32, Int64);
+typedef _TapC = Void Function(
+  Pointer<Void>,
+  Uint32,
+  Pointer<Void>,
+  Uint32,
+  Int64,
+);
 typedef _TapDart = void Function(Pointer<Void>, int, Pointer<Void>, int, int);
 
 /// What the isolate of the one-hop path needs.
@@ -64,9 +69,8 @@ Future<void> _oneHop(_OneHop args) async {
   final commands = ReceivePort();
   final midi = await Midi.open(options: const MidiOptions(inIsolate: true));
   final clock = AudMidiClock();
-  final tap = Pointer<NativeFunction<_TapC>>.fromAddress(
-    args.tap,
-  ).asFunction<_TapDart>();
+  final tap = Pointer<NativeFunction<_TapC>>.fromAddress(args.tap)
+      .asFunction<_TapDart>();
   final user = Pointer<Void>.fromAddress(args.adapter);
   final buffer = calloc<Uint8>(4096);
   StreamSubscription<MidiPacket>? packets;
@@ -172,13 +176,11 @@ void main() {
     ) {
       final node = graph.createNode(AudMidiInputNode.typeId, name: name);
       graph.transaction((_) {});
-      final created =
-          graph.createEventSource(
-                node,
-                latencyNs: bridge.fixedLatencyNs,
-                capacity: bridge.options.capacity,
-              )
-              as AudEventSourceFfi;
+      final created = graph.createEventSource(
+        node,
+        latencyNs: bridge.fixedLatencyNs,
+        capacity: bridge.options.capacity,
+      ) as AudEventSourceFfi;
       final producer = token++;
       created.attach(producer);
       return (

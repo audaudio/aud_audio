@@ -131,9 +131,8 @@ class EngineNumbers extends StatelessWidget {
   Future<void> copyReport(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: engine.report()));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Report copied')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Report copied')));
   }
 
   @override

@@ -1,14 +1,21 @@
 # aud_audio
 
+English | [Deutsch](README.de.md)
+
 The Audanika Audio Engine: a Flutter audio graph defined in Dart and
-rendered in C++. `AudEngine` plays a graph of `aud_audio_graph` through an
-output stream of `aud_audio_io`, registers the node types of DSP packages
-and recovers from route changes, interruptions and lost devices on its
-own. iOS and Android first, macOS with the Audanika Mac app.
+rendered in C++, on iOS, Android and macOS.
 
-Part of the Audanika Audio Engine; planned in [aud_audio_pm](https://github.com/audaudio/aud_audio_pm).
+`AudEngine` plays a graph of `aud_audio_graph` through an output stream of
+`aud_audio_io`, registers the node types of DSP packages and recovers from
+route changes, interruptions and lost devices on its own. Part of the
+Audanika Audio Engine; planned in
+[aud_audio_pm](https://github.com/audaudio/aud_audio_pm).
 
-## Goals
+## Motivation
+
+An app needs one engine, not a session, a stream and a graph it wires up
+by hand and keeps alive through every format change, interruption and
+lost device. This package is that engine:
 
 - One engine for the app: session, stream and graph opened together, the
   graph's render function handed to the stream (ticket 22, step S4)
@@ -16,7 +23,7 @@ Part of the Audanika Audio Engine; planned in [aud_audio_pm](https://github.com/
   disposed - and one sequence for every change of format or route,
   interruptions and lost devices; the transport, the graph and its nodes
   survive (decision lifecycle-001)
-- DSP packages register through `aud_<package>_register(const AudHostApi*)`;
+- DSP packages register through `aud_<name>_register(const AudHostApi*)`;
   a package of another ABI major is refused (abi-001)
 - One API on native platforms and the web (web-001):
   `aud_audio.dart` imports no `dart:ffi`; the web engine follows with S5
@@ -27,33 +34,22 @@ Part of the Audanika Audio Engine; planned in [aud_audio_pm](https://github.com/
 
 ## Installation
 
+The package is not published to pub.dev; add it as a git dependency:
+
 ```yaml
 dependencies:
   aud_audio:
     git:
       url: git@github.com:audaudio/aud_audio.git
       tag_pattern: "{{version}}"
-    version: ^0.2.0
+    version: ^0.4.5
 ```
 
 The package needs the Flutter SDK, as `aud_audio_io` does. It pins exact
 versions of `aud_audio_core`, `aud_audio_graph`, `aud_audio_io` and
-`aud_audio_web` (family-001). Its platforms are iOS and Android
-(release-001), macOS on the Core Audio device of `aud_audio_io`
-(release-005, ticket 37) and Windows on its WASAPI device (io-005, ticket
-38); Linux runs the null device until its part of S3b.
+`aud_audio_web` (family-001).
 
-## Documentation
-
-- [The engine](https://audaudio.github.io/engine/) on the documentation
-  site
-- [The plan of ticket 22](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-09-22-build-the-aud-audio-engine.md)
-  with its decisions, measurements and findings
-- [The plan of ticket 25](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-11-25-build-the-sfz-sampler-on-sfizz-for-ios-and-android.md)
-  with the sampler, its measurements and findings
-- The guides in [`doc/guides`](doc/guides)
-
-## Code Examples
+## Usage
 
 Oscillator, filter and output:
 
@@ -153,7 +149,30 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   --dart-define=AUD_PLAY_SECONDS=600 --dart-define=AUD_BLUETOOTH=true
 ```
 
-## How It Works
+## Limitations
+
+- The platforms are iOS and Android (release-001), macOS on the Core Audio
+  device of `aud_audio_io` (release-005, ticket 37) and Windows on its
+  WASAPI device (io-005, ticket 38); Linux runs the null device until its
+  part of S3b
+- The web engine follows with S5; `aud_audio_web` is a stub until then
+- The engine renders no sound of its own: the node types come from the
+  reference nodes of `aud_audio_graph` and from the DSP packages the app
+  registers
+
+## Documentation
+
+- [The engine](https://audaudio.github.io/engine/) on the documentation
+  site
+- [The plan of ticket 22](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-09-22-build-the-aud-audio-engine.md)
+  with its decisions, measurements and findings
+- [The plan of ticket 25](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-11-25-build-the-sfz-sampler-on-sfizz-for-ios-and-android.md)
+  with the sampler, its measurements and findings
+- The guides in [doc/guides](doc/guides) and the blog posts in
+  [doc/blog](doc/blog)
+- The changes per version in [CHANGELOG.md](CHANGELOG.md)
+
+## How it works
 
 - The engine opens an `AudIoSession`, creates the `AudGraph` and opens an
   output `AudIoStream` with `aud_graph_render` and the graph as its user;
@@ -201,11 +220,22 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   native parts of core, graph and io.
 - `test_packages/aud_test_nodes` is a DSP package built apart from the
   engine: `node scripts/test-native.js --library` builds it as a library
-  of its own, which the tests load to prove the registry. `node scripts/test-native.js` runs its
-  native test under ASan/UBSan and the RealtimeSanitizer.
+  of its own, which the tests load to prove the registry.
+  `node scripts/test-native.js` runs its native test under ASan/UBSan and
+  the RealtimeSanitizer.
+
+## Status
+
+Before 1.0 - the API may change between minor versions. The family is
+pinned to exact versions, so a release of this package follows the
+releases of core, graph and io.
 
 ## Contributing
 
 Tickets run through the `gg` workflow: see the
 [Develop Guide](doc/guides/develop-guide.md) and the
 [Review Guide](doc/guides/for-ai/ai-review-guide.md).
+
+## License
+
+MIT - see [LICENSE](LICENSE).

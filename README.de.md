@@ -1,15 +1,21 @@
 # aud_audio
 
+[English](README.md) | Deutsch
+
 Die Audanika Audio Engine: ein Flutter-Audiograph, in Dart beschrieben und
-in C++ gerendert. `AudEngine` spielt einen Graphen von `aud_audio_graph`
-über einen Ausgabestream von `aud_audio_io`, registriert die Knotentypen
-von DSP-Paketen und erholt sich selbst von Routenwechseln,
-Unterbrechungen und verlorenen Geräten. Zuerst iOS und Android, macOS mit
-der Audanika-Mac-App.
+in C++ gerendert, auf iOS, Android und macOS.
 
-Teil der Audanika Audio Engine; geplant in [aud_audio_pm](https://github.com/audaudio/aud_audio_pm).
+`AudEngine` spielt einen Graphen von `aud_audio_graph` über einen
+Ausgabestream von `aud_audio_io`, registriert die Knotentypen von
+DSP-Paketen und erholt sich selbst von Routenwechseln, Unterbrechungen und
+verlorenen Geräten. Teil der Audanika Audio Engine; geplant in
+[aud_audio_pm](https://github.com/audaudio/aud_audio_pm).
 
-## Ziele
+## Motivation
+
+Eine App braucht eine Engine, nicht Session, Stream und Graph, die sie von
+Hand verdrahtet und durch jeden Formatwechsel, jede Unterbrechung und
+jedes verlorene Gerät am Leben hält. Dieses Paket ist diese Engine:
 
 - Eine Engine für die App: Session, Stream und Graph gemeinsam geöffnet,
   die Renderfunktion des Graphen an den Stream übergeben (Ticket 22,
@@ -19,7 +25,7 @@ Teil der Audanika Audio Engine; geplant in [aud_audio_pm](https://github.com/aud
   Unterbrechungen und verlorene Geräte; Transport, Graph und Knoten
   bleiben erhalten (Entscheidung lifecycle-001)
 - DSP-Pakete registrieren sich über
-  `aud_<package>_register(const AudHostApi*)`; ein Paket einer anderen
+  `aud_<name>_register(const AudHostApi*)`; ein Paket einer anderen
   ABI-Hauptversion wird abgewiesen (abi-001)
 - Eine API auf nativen Plattformen und im Web (web-001): `aud_audio.dart`
   importiert kein `dart:ffi`; die Web-Engine folgt mit S5
@@ -31,33 +37,23 @@ Teil der Audanika Audio Engine; geplant in [aud_audio_pm](https://github.com/aud
 
 ## Installation
 
+Das Paket ist nicht auf pub.dev veröffentlicht; es kommt als
+Git-Abhängigkeit dazu:
+
 ```yaml
 dependencies:
   aud_audio:
     git:
       url: git@github.com:audaudio/aud_audio.git
       tag_pattern: "{{version}}"
-    version: ^0.2.0
+    version: ^0.4.5
 ```
 
 Das Paket braucht das Flutter SDK, wie `aud_audio_io`. Es pinnt exakte
 Versionen von `aud_audio_core`, `aud_audio_graph`, `aud_audio_io` und
-`aud_audio_web` (family-001). Seine Plattformen sind iOS und Android
-(release-001), macOS auf dem Core-Audio-Gerät von `aud_audio_io`
-(release-005, Ticket 37) und Windows auf seinem WASAPI-Gerät (io-005,
-Ticket 38); Linux läuft bis zu seinem Teil von S3b auf dem Null-Gerät.
+`aud_audio_web` (family-001).
 
-## Dokumentation
-
-- [Die Engine](https://audaudio.github.io/engine/) auf der
-  Dokumentationsseite
-- [Der Plan von Ticket 22](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-09-22-build-the-aud-audio-engine.md)
-  mit Entscheidungen, Messungen und Erkenntnissen
-- [Der Plan von Ticket 25](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-11-25-build-the-sfz-sampler-on-sfizz-for-ios-and-android.md)
-  mit dem Sampler, seinen Messungen und Erkenntnissen
-- Die Guides in [`doc/guides`](doc/guides)
-
-## Code-Beispiele
+## Verwendung
 
 Oszillator, Filter und Ausgang:
 
@@ -86,7 +82,7 @@ Ein DSP-Paket registriert seine Knotentypen beim Start
 final engine = AudEngine(
   config: const AudEngineConfig(cacheBudget: 128 << 20),
   packages: [
-    // Der SFZ-Sampler von aud_dsp_sampler; die App hängt von ihm ab.
+    // The SFZ sampler of aud_dsp_sampler; the app depends on it.
     AudNativeNodePackage(AudDspSampler.name, AudDspSampler.register),
     AudNativeNodePackage(
       'aud_dsp_effects',
@@ -95,7 +91,7 @@ final engine = AudEngine(
   ],
 );
 engine.prepare();
-print(engine.registrations); // AUD_OK, oder z. B. AUD_ERROR_ABI_MAJOR
+print(engine.registrations); // AUD_OK, or e.g. AUD_ERROR_ABI_MAJOR
 ```
 
 Die Zahlen und ein Bericht zum Kopieren:
@@ -113,7 +109,7 @@ Stimmenbudget der Sampler-Knoten von `aud_dsp_sampler` - an
 
 ```dart
 final governor = AudLoadGovernor(
-  budget: samplerVoices, // ein AudLoadBudget der App
+  budget: samplerVoices, // an AudLoadBudget of the app
   start: learnedBudget ?? AudDeviceClass.current().startUnits,
 );
 engine.addExtension(governor);
@@ -160,6 +156,29 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   --dart-define=AUD_PLAY_SECONDS=600 --dart-define=AUD_BLUETOOTH=true
 ```
 
+## Grenzen
+
+- Die Plattformen sind iOS und Android (release-001), macOS auf dem
+  Core-Audio-Gerät von `aud_audio_io` (release-005, Ticket 37) und
+  Windows auf seinem WASAPI-Gerät (io-005, Ticket 38); Linux läuft bis zu
+  seinem Teil von S3b auf dem Null-Gerät
+- Die Web-Engine folgt mit S5; `aud_audio_web` ist bis dahin ein Stub
+- Die Engine erzeugt keinen eigenen Klang: Die Knotentypen kommen aus den
+  Referenzknoten von `aud_audio_graph` und aus den DSP-Paketen, die die
+  App registriert
+
+## Dokumentation
+
+- [Die Engine](https://audaudio.github.io/engine/) auf der
+  Dokumentationsseite
+- [Der Plan von Ticket 22](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-09-22-build-the-aud-audio-engine.md)
+  mit Entscheidungen, Messungen und Erkenntnissen
+- [Der Plan von Ticket 25](https://github.com/audaudio/aud_audio_pm/blob/main/doc/2026-Q4/tickets/2026-10-11-25-build-the-sfz-sampler-on-sfizz-for-ios-and-android.md)
+  mit dem Sampler, seinen Messungen und Erkenntnissen
+- Die Guides in [doc/guides](doc/guides) und die Blogbeiträge in
+  [doc/de/blog](doc/de/blog)
+- Die Änderungen je Version in [CHANGELOG.md](CHANGELOG.md)
+
 ## Funktionsweise
 
 - Die Engine öffnet eine `AudIoSession`, erzeugt den `AudGraph` und
@@ -200,9 +219,8 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   Performance Class und dem Takt der schnellsten Kerne unter Android, 128
   auf einem Simulator oder Emulator, gelesen über die C-Bibliothek; Ticket
   30 hob diese Startwerte für die schnelleren Sampler-Stimmen an
-  (lifecycle-004). Die
-  Policy läuft ohne Timer, deshalb lassen sich aufgezeichnete
-  `AudLoadSample`s durch sie abspielen.
+  (lifecycle-004). Die Policy läuft ohne Timer, deshalb lassen sich
+  aufgezeichnete `AudLoadSample`s durch sie abspielen.
 - Command-to-Sound läuft von der Host-Zeit einer leeren Transaktion bis
   zur Ausgabezeit des ersten Blocks, der sie rendert: Der Graph meldet die
   Sample-Position des Blocks, die letzte `AudStreamTime` des Streams
@@ -212,11 +230,22 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   die nativen Teile von Core, Graph und IO.
 - `test_packages/aud_test_nodes` ist ein getrennt gebautes DSP-Paket:
   `node scripts/test-native.js --library` baut es als eigene Bibliothek,
-  die die Tests laden, um die Registry zu beweisen. `node scripts/test-native.js` führt seinen
-  nativen Test unter ASan/UBSan und dem RealtimeSanitizer aus.
+  die die Tests laden, um die Registry zu beweisen.
+  `node scripts/test-native.js` führt seinen nativen Test unter ASan/UBSan
+  und dem RealtimeSanitizer aus.
+
+## Status
+
+Vor 1.0 - die API kann sich zwischen Minor-Versionen ändern. Die Familie
+ist auf exakte Versionen gepinnt, deshalb folgt ein Release dieses Pakets
+den Releases von Core, Graph und IO.
 
 ## Mitwirken
 
 Tickets laufen über den `gg`-Workflow: siehe den
 [Develop Guide](doc/guides/develop-guide.md) und den
 [Review Guide](doc/guides/for-ai/ai-review-guide.md).
+
+## Lizenz
+
+MIT - siehe [LICENSE](LICENSE).
