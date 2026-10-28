@@ -108,9 +108,10 @@ void main() {
           build(reference);
           reference.prepare(sampleRate: rate, maxFrames: 256);
           reference.start();
-          final offline = AudOfflineRenderer(
-            reference,
-          ).render(frames: live.length, blockFrames: 240).single.single;
+          final offline = AudOfflineRenderer(reference)
+              .render(frames: live.length, blockFrames: 240)
+              .single
+              .single;
           for (var i = 0; i < live.length; i += 97) {
             expect(live[i], closeTo(offline[i], 1e-4), reason: 'frame $i');
           }
