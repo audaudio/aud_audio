@@ -6,8 +6,6 @@ version: 0.2.0+1
 environment:
   sdk: ^3.13.0
 
-resolution: workspace
-
 dependencies:
   flutter:
     sdk: flutter
@@ -17,15 +15,15 @@ dependencies:
     git:
       url: git@github.com:audaudio/aud_dsp_sampler.git
       tag_pattern: "{{version}}"
-    version: ^0.4.0
+    version: ^0.5.0
   aud_audio_midi:
     git:
       url: git@github.com:audaudio/aud_audio_midi.git
       tag_pattern: "{{version}}"
     version: ^0.1.6
-  aud_midi: ^0.1.4
+  aud_midi: ^0.2.0
   ffi: ^2.2.0
-  aud_midi_standard: ^0.1.1
+  aud_midi_standard: ^0.3.0
   path_provider: ^2.1.6
   permission_handler: ^13.0.2
 
