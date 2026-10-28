@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.1 - 2026-10-28
+
+### Changed
+
+- Upgrade the git dependencies to their published versions
+
+- Lift aud_audio_core, aud_audio_graph, aud_audio_io, aud_audio_web and aud_dsp_sampler to their published versions
+
+- Let the example resolve on its own again; it depends on aud_audio_midi, which depends on this package
+
+- Upgrade aud_midi and aud_midi_standard in the example
+
 ## 0.5.0 - 2026-10-28
 
 ### Changed
