@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Connects Bluetooth LE MIDI keyboards.</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>Finds network MIDI sessions.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

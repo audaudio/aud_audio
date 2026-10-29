@@ -12,7 +12,7 @@
     "The sample cache budget of the process and the numbers of the engine: render time, xruns, command to sound, cache and loads",
     "Engine extensions that live with the engine and close before its graph, and the engine's timing for the control side (ticket 26)",
     "The load governor (ticket 29): AudLoadGovernor sets an AudLoadBudget - e.g. the voice budget of the sampler nodes - from the mean render share, the xruns and the units in use; AudLoadPolicy without timers for simulations; AudDeviceClass reads the device's model, cores, clocks and media performance class for the start budget",
-    "The example app: oscillator page, SFZ sampler page with a keyboard and the MIDI keyboard page with aud_audio_midi, integration tests that measure the M1 budgets and the MIDI paths"
+    "The example app in the pub workspace: oscillator page, SFZ sampler page with a keyboard, integration tests that measure the M1 budgets"
   ],
   "interfaces": {
     "uses": {
@@ -27,7 +27,8 @@
       "aud_audio_ui_controls": "consumes this package",
       "aud_audio_ui_keyboard": "consumes this package",
       "aud_audio_ui_waveform": "consumes this package",
-      "aud_audio_bench": "consumes this package"
+      "aud_audio_bench": "consumes this package",
+      "aud_audio_midi": "the engine its MIDI bridge extends, its timing and node packages"
     }
   }
 }

@@ -119,21 +119,15 @@ period; `AudLoadBudget.usage` returns an `AudLoadBudgetUsage`;
 `AudDeviceClass.key` names the device for a learned budget, and
 `AudDeviceClass.fromProbe` reads an `AudDeviceProbe` (tests).
 
-`example/` has three pages on one engine: oscillator -> filter -> output
-with frequency and cutoff; the SFZ sampler of `aud_dsp_sampler` with
+`example/` has two pages on one engine: oscillator -> filter -> output
+with frequency and cutoff; and the SFZ sampler of `aud_dsp_sampler` with
 instruments generated on the device, a multi-touch keyboard, sustain,
 modulation, the load, a test of 64 voices and an auto-play with an animated
-UI; and the MIDI keyboard of ticket 26: a port of `aud_midi` plays the
-sampler through `aud_audio_midi`, with a port picker, Bluetooth MIDI, the
-activity of the port, the fixed or immediate timing and the measured input
-to output time. All with the numbers and a copyable report.
-`sampler_test.dart` measures the M1 budgets of ticket 17;
-`AUD_WARMUP_SECONDS` lets the auto-play warm the device up first, and only
-the xruns of the following `AUD_MEASURE_SECONDS` count. `midi_test.dart`
-plays a recorded performance from a source of the app into the MIDI page
-the same way, `midi_paths_test.dart` measures the native and the Dart
-paths of midi-002, and `midi_keyboard_test.dart` guides a person through
-playing a real keyboard, the hot-plug and Bluetooth MIDI:
+UI. Both with the numbers and a copyable report. The example is a member
+of the pub workspace of this repo. `sampler_test.dart` measures the M1
+budgets of ticket 17; `AUD_WARMUP_SECONDS` lets the auto-play warm the
+device up first, and only the xruns of the following
+`AUD_MEASURE_SECONDS` count:
 
 ```bash
 cd example
@@ -143,10 +137,6 @@ flutter test integration_test/engine_test.dart -d <device> \
 flutter test integration_test/sampler_test.dart -d <device> \
   --dart-define=AUD_WARMUP_SECONDS=1200 \
   --dart-define=AUD_MEASURE_SECONDS=600 --dart-define=AUD_ASSERT_BUDGETS=true
-flutter test integration_test/midi_test.dart -d <device> \
-  --dart-define=AUD_WARMUP_SECONDS=1200 --dart-define=AUD_MEASURE_SECONDS=600
-flutter test integration_test/midi_keyboard_test.dart -d <device> \
-  --dart-define=AUD_PLAY_SECONDS=600 --dart-define=AUD_BLUETOOTH=true
 ```
 
 ## Limitations
@@ -184,8 +174,8 @@ flutter test integration_test/midi_keyboard_test.dart -d <device> \
   format's generation to the stream. Interruptions and lost devices
   suspend the graph until the stream reports them over.
 - Shutdown reverses start-up: stream, graph, session. Before, the engine
-  tells its extensions (`AudEngineExtension`, e.g. the MIDI bridge of
-  `aud_audio_midi`), newest first and synchronously, so that they stop
+  tells its extensions (`AudEngineExtension`, e.g. a MIDI bridge), newest
+  first and synchronously, so that they stop
   what feeds the graph from other threads; extensions also hear when the
   engine started, stops and when its timing starts again.
 - `AudEngine.timing` is the graph's timing of the last block for the

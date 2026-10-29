@@ -15,6 +15,9 @@ platforms:
   ios:
   macos:
 
+workspace:
+  - example
+
 # The family is pinned to exact versions (family-001).
 dependencies:
   aud_audio_core:
@@ -46,4 +49,4 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   helix: ^1.14.0
   # Within the test_api that flutter_test of the example pins.
-  test: ^1.33.0
+  test: ^1.31.1
