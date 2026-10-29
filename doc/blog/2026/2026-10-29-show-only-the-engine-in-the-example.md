@@ -11,10 +11,12 @@ found in the LICENSE file in the root of this package.
 ## Motivation
 
 - An example shows what its package provides. The example of this package
-  also had a MIDI keyboard page, built on a MIDI bridge that is not part of
-  this package.
-- That bridge depends on this package. Through the MIDI page the example
-  depended on a package that depends on the package of the example.
+  also had a MIDI keyboard page, built on the MIDI bridge of
+  [`aud_audio_midi`](https://github.com/audaudio/aud_audio_midi), which is
+  not part of this package.
+- `aud_audio_midi` depends on this package. Through the MIDI page the
+  example depended on a package that depends on the package of the
+  example.
 - With that loop the example could not join the pub workspace of the repo:
   it resolved on its own, with its own `pubspec.lock` and a committed
   `pubspec_overrides.yaml` that pointed back to local checkouts.
@@ -25,11 +27,13 @@ found in the LICENSE file in the root of this package.
 ## Strategy
 
 - Remove the MIDI page and everything only it needed; keep the oscillator
-  and the sampler pages as they are.
+  and the sampler pages as they are. The MIDI page lives on in the example
+  of `aud_audio_midi`.
 - Put the example into the pub workspace of the repo and drop the files the
   separate resolution needed.
 - Keep the library and its public API untouched.
-- Describe the engine's extension point without naming a user of it.
+- Link the MIDI demo from the README; a code dependency on
+  `aud_audio_midi` stays out of every `pubspec.yaml` of this repo.
 
 ## Implementation 1: The example shows the engine
 
@@ -41,7 +45,7 @@ found in the LICENSE file in the root of this package.
 - The Android manifest loses the MIDI and Bluetooth features and
   permissions and the MIDI loopback service with its device description;
   `Info.plist` loses the Bluetooth and local network usage texts.
-- The example no longer depends on a MIDI bridge, `aud_midi`,
+- The example no longer depends on `aud_audio_midi`, `aud_midi`,
   `permission_handler` and `ffi`. It keeps `aud_midi_standard` for the
   messages the sampler page plays.
 
@@ -60,8 +64,7 @@ found in the LICENSE file in the root of this package.
 
 - The README, in English and German, describes the two pages and the
   workspace and drops the MIDI test commands.
-- `AudEngineExtension` and the README call the extension a MIDI bridge in
-  general, not a specific package.
+- The README links the example of `aud_audio_midi` for the MIDI keyboard.
 - `index.jsonc` describes the example without the MIDI page.
 
 ## Result

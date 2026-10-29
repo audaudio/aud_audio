@@ -9,6 +9,7 @@
 ### Changed
 
 - Put the example back into the pub workspace
+- Link the MIDI demo of aud_audio_midi from the README
 
 ## 0.5.1 - 2026-10-28
 

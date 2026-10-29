@@ -130,9 +130,12 @@ Ausgang mit Frequenz und Cutoff; und den SFZ-Sampler von
 einer Multi-Touch-Tastatur, Sustain, Modulation, dem Ladevorgang, einem
 Test mit 64 Stimmen und einem Auto-Play mit animierter UI. Beide mit den
 Zahlen und einem kopierbaren Bericht. Das Beispiel ist Mitglied des
-Pub-Workspace dieses Repos. `sampler_test.dart` misst die M1-Budgets von
-Ticket 17; `AUD_WARMUP_SECONDS` lässt das Auto-Play das Gerät zuerst
-aufwärmen, und nur die Xruns der folgenden `AUD_MEASURE_SECONDS` zählen:
+Pub-Workspace dieses Repos. Das MIDI-Keyboard, das den Sampler spielt,
+liegt im Beispiel von
+[`aud_audio_midi`](https://github.com/audaudio/aud_audio_midi).
+`sampler_test.dart` misst die M1-Budgets von Ticket 17;
+`AUD_WARMUP_SECONDS` lässt das Auto-Play das Gerät zuerst aufwärmen, und
+nur die Xruns der folgenden `AUD_MEASURE_SECONDS` zählen:
 
 ```bash
 cd example
@@ -180,9 +183,11 @@ flutter test integration_test/sampler_test.dart -d <device> \
   verlorene Geräte suspendieren den Graphen, bis der Stream ihr Ende
   meldet.
 - Das Herunterfahren kehrt den Start um: Stream, Graph, Session. Vorher
-  sagt die Engine es ihren Erweiterungen (`AudEngineExtension`, z. B. einer
-  MIDI-Brücke), die neueste zuerst und synchron,
-  damit sie anhalten, was den Graphen aus anderen Threads speist;
+  sagt die Engine es ihren Erweiterungen (`AudEngineExtension`, z. B. der
+  MIDI-Brücke von
+  [`aud_audio_midi`](https://github.com/audaudio/aud_audio_midi)), die
+  neueste zuerst und synchron, damit sie anhalten, was den Graphen aus
+  anderen Threads speist;
   Erweiterungen hören auch, wenn die Engine gestartet ist, stoppt und wenn
   ihr Timing neu beginnt.
 - `AudEngine.timing` ist das Timing des Graphen aus dem letzten Block für

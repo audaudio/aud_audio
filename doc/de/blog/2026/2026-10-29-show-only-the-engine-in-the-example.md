@@ -11,9 +11,10 @@ found in the LICENSE file in the root of this package.
 ## Motivation
 
 - Ein Beispiel zeigt, was sein Paket bereitstellt. Das Beispiel dieses
-  Pakets hatte auch eine MIDI-Keyboard-Seite, gebaut auf einer MIDI-Brücke,
-  die nicht Teil dieses Pakets ist.
-- Diese Brücke hängt von diesem Paket ab. Über die MIDI-Seite hing das
+  Pakets hatte auch eine MIDI-Keyboard-Seite, gebaut auf der MIDI-Brücke
+  von [`aud_audio_midi`](https://github.com/audaudio/aud_audio_midi), die nicht
+  Teil dieses Pakets ist.
+- `aud_audio_midi` hängt von diesem Paket ab. Über die MIDI-Seite hing das
   Beispiel also an einem Paket, das selbst am Paket des Beispiels hängt.
 - Mit dieser Schleife konnte das Beispiel nicht in den Pub-Workspace des
   Repos: Es löste allein auf, mit eigener `pubspec.lock` und einer
@@ -24,12 +25,13 @@ found in the LICENSE file in the root of this package.
 ## Strategie
 
 - Die MIDI-Seite und alles, was nur sie brauchte, entfernen; Oszillator-
-  und Sampler-Seite bleiben, wie sie sind.
+  und Sampler-Seite bleiben, wie sie sind. Die MIDI-Seite lebt im Beispiel
+  von `aud_audio_midi` weiter.
 - Das Beispiel in den Pub-Workspace des Repos holen und die Dateien
   löschen, die die getrennte Auflösung brauchte.
 - Die Bibliothek und ihre öffentliche API bleiben unverändert.
-- Den Erweiterungspunkt der Engine beschreiben, ohne einen Nutzer zu
-  nennen.
+- Die MIDI-Demo aus der README verlinken; eine Code-Abhängigkeit auf
+  `aud_audio_midi` bleibt aus jeder `pubspec.yaml` dieses Repos heraus.
 
 ## Realisierung 1: Das Beispiel zeigt die Engine
 
@@ -42,7 +44,7 @@ found in the LICENSE file in the root of this package.
   -Berechtigungen sowie den MIDI-Loopback-Service mit seiner
   Gerätebeschreibung; `Info.plist` verliert die Texte für Bluetooth und das
   lokale Netzwerk.
-- Das Beispiel hängt nicht mehr an einer MIDI-Brücke, `aud_midi`,
+- Das Beispiel hängt nicht mehr an `aud_audio_midi`, `aud_midi`,
   `permission_handler` und `ffi`. `aud_midi_standard` bleibt für die
   Nachrichten, die die Sampler-Seite spielt.
 
@@ -62,8 +64,8 @@ found in the LICENSE file in the root of this package.
 
 - Die README, auf Englisch und Deutsch, beschreibt die zwei Seiten und den
   Workspace und verliert die MIDI-Testbefehle.
-- `AudEngineExtension` und die README nennen die Erweiterung allgemein eine
-  MIDI-Brücke, kein bestimmtes Paket.
+- Die README verlinkt das Beispiel von `aud_audio_midi` für das
+  MIDI-Keyboard.
 - `index.jsonc` beschreibt das Beispiel ohne die MIDI-Seite.
 
 ## Ergebnis
