@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.2 - 2026-10-29
+
+### Added
+
+- Add the blog post on the example in the pub workspace
+
+### Changed
+
+- Put the example back into the pub workspace
+- Link the MIDI demo of aud_audio_midi from the README
+
 ## 0.5.1 - 2026-10-28
 
 ### Changed
