@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add the blog post on the example in the pub workspace
+
 ### Changed
 
 - Put the example back into the pub workspace
