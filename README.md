@@ -126,7 +126,7 @@ modulation, the load, a test of 64 voices and an auto-play with an animated
 UI. Both with the numbers and a copyable report. The example is a member
 of the pub workspace of this repo. The MIDI keyboard that plays the sampler
 lives in the example of
-[`aud_audio_midi`](https://github.com/audaudio/aud_audio_midi).
+[`aud_audio_with_midi`](https://github.com/audaudio/aud_audio_with_midi).
 `sampler_test.dart` measures the M1 budgets of ticket 17;
 `AUD_WARMUP_SECONDS` lets the auto-play warm the device up first, and only
 the xruns of the following `AUD_MEASURE_SECONDS` count:
@@ -177,7 +177,7 @@ flutter test integration_test/sampler_test.dart -d <device> \
   suspend the graph until the stream reports them over.
 - Shutdown reverses start-up: stream, graph, session. Before, the engine
   tells its extensions (`AudEngineExtension`, e.g. the MIDI bridge of
-  [`aud_audio_midi`](https://github.com/audaudio/aud_audio_midi)), newest
+  [`aud_audio_with_midi`](https://github.com/audaudio/aud_audio_with_midi)), newest
   first and synchronously, so that they stop what feeds the graph from
   other threads; extensions also hear when the engine started, stops and
   when its timing starts again.

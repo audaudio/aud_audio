@@ -28,7 +28,7 @@
       "aud_audio_ui_keyboard": "consumes this package",
       "aud_audio_ui_waveform": "consumes this package",
       "aud_audio_bench": "consumes this package",
-      "aud_audio_midi": "the engine its MIDI bridge extends, its timing and node packages"
+      "aud_audio_with_midi": "the engine its MIDI bridge extends, its timing and node packages"
     }
   }
 }

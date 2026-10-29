@@ -46,11 +46,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "4de57aef0c99778861a185b1ecbe1df2f58df9ac"
+      resolved-ref: "6a44f3c1d7774663474efc5329baa77853131e5c"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_graph.git"
     source: git
-    version: "0.6.1"
+    version: "0.6.2"
   aud_audio_io:
     dependency: "direct main"
     description:
@@ -64,11 +64,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      resolved-ref: "7667fa035cfd31226e72853859f09bf52d1d356a"
+      resolved-ref: "35e7d4867ebab89747e30db5837726b08d3ab054"
       tag-pattern: "{{version}}"
       url: "git@github.com:audaudio/aud_audio_web.git"
     source: git
-    version: "0.1.0"
+    version: "0.1.1"
   aud_dsp_sampler:
     dependency: transitive
     description:
