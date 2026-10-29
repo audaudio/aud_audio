@@ -23,7 +23,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.5.0"
+    version: "0.5.1"
   aud_audio_core:
     dependency: transitive
     description:
@@ -57,7 +57,7 @@ packages:
       path: "../../aud_audio_midi"
       relative: true
     source: path
-    version: "0.1.6"
+    version: "0.2.0"
   aud_audio_web:
     dependency: transitive
     description:
