@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.4 - 2026-10-29
+
+### Added
+
+- Add a blog post about the placeholder app IDs
+
+### Changed
+
+- Use com.example IDs in the example
+
 ## 0.5.3 - 2026-10-29
 
 ### Added
