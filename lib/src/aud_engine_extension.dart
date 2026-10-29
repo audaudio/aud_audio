@@ -8,7 +8,7 @@ import 'aud_engine.dart';
 
 // #############################################################################
 /// A part of an app that lives with an [AudEngine], e.g. the MIDI bridge of
-/// `aud_audio_midi`, which feeds the graph from native threads.
+/// `aud_audio_with_midi`, which feeds the graph from native threads.
 ///
 /// The engine tells its extensions when it started, when it is about to
 /// stop, when its timing starts again - a new format or route, a reset of
