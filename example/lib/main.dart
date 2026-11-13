@@ -10,7 +10,7 @@ import 'dart:math';
 import 'package:aud_audio/aud_audio_ffi.dart';
 import 'package:aud_dsp_sampler/aud_dsp_sampler_ffi.dart';
 import 'package:aud_dsp_sampler/testing.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'engine_panel.dart';
 import 'instruments.dart';

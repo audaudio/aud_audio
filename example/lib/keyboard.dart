@@ -4,7 +4,7 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // #############################################################################
 /// A small on-screen keyboard of the example (S17b builds the real one in
