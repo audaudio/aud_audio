@@ -11,7 +11,7 @@ import 'package:aud_audio/aud_audio.dart';
 import 'package:aud_dsp_sampler/aud_dsp_sampler.dart';
 import 'package:aud_dsp_sampler/testing.dart';
 import 'package:aud_midi_standard/aud_midi_standard.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'engine_panel.dart';
 import 'instruments.dart';

@@ -4,7 +4,8 @@ publish_to: none
 version: 0.2.0+1
 
 environment:
-  sdk: ^3.13.0
+  sdk: ^3.14.0
+  flutter: ">=3.50.0"
 
 resolution: workspace
 
@@ -17,10 +18,11 @@ dependencies:
     git:
       url: git@github.com:audaudio/aud_dsp_sampler.git
       tag_pattern: "{{version}}"
-    version: ^0.5.0
-  aud_midi_standard: ^0.3.0
+    version: ^1.0.0
+  aud_midi_standard: ^1.0.0
   path_provider: ^2.1.6
 
+  material_ui: ^1.11.0
 dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_test:
