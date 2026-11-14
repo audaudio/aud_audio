@@ -25,22 +25,22 @@ dependencies:
     git:
       url: git@github.com:audaudio/aud_audio_core.git
       tag_pattern: "{{version}}"
-    version: ^0.6.2
+    version: ^1.0.0
   aud_audio_graph:
     git:
       url: git@github.com:audaudio/aud_audio_graph.git
       tag_pattern: "{{version}}"
-    version: ^0.6.4
+    version: ^1.0.0
   aud_audio_io:
     git:
       url: git@github.com:audaudio/aud_audio_io.git
       tag_pattern: "{{version}}"
-    version: ^0.5.2
+    version: ^1.0.0
   aud_audio_web:
     git:
       url: git@github.com:audaudio/aud_audio_web.git
       tag_pattern: "{{version}}"
-    version: ^0.1.2
+    version: ^1.0.0
   ffi: ^2.2.0
   flutter:
     sdk: flutter
@@ -52,7 +52,7 @@ dev_dependencies:
     git:
       url: git@github.com:audaudio/aud_dsp_sampler.git
       tag_pattern: "{{version}}"
-    version: ^0.5.1
+    version: ^1.0.0
   dna_audanika: ^0.1.0
   flutter_lints: ^6.0.0
   # Within the test_api that flutter_test of the example pins.
