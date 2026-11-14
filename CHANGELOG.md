@@ -5,6 +5,7 @@
 ### Changed
 
 - Require Flutter 3.50 and Dart 3.14, build the DNA
+- Declare the sampler of the example as dev dependency
 
 ## 0.5.4 - 2026-10-29
 

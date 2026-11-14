@@ -39,30 +39,30 @@ packages:
       path: "../aud_audio_core"
       relative: true
     source: path
-    version: "0.6.2"
+    version: "1.0.0"
   aud_audio_graph:
     dependency: "direct main"
     description:
       path: "../aud_audio_graph"
       relative: true
     source: path
-    version: "0.6.4"
+    version: "1.0.0"
   aud_audio_io:
     dependency: "direct main"
     description:
       path: "../aud_audio_io"
       relative: true
     source: path
-    version: "0.5.2"
+    version: "1.0.0"
   aud_audio_web:
     dependency: "direct main"
     description:
       path: "../aud_audio_web"
       relative: true
     source: path
-    version: "0.1.2"
+    version: "1.0.0"
   aud_dsp_sampler:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       path: "."
       resolved-ref: "1c69fb8d7f352df42326dc9e9e36086a17bf7026"
@@ -76,7 +76,7 @@ packages:
       path: "../aud_midi_standard"
       relative: true
     source: path
-    version: "0.3.1"
+    version: "1.0.0"
   boolean_selector:
     dependency: transitive
     description:
